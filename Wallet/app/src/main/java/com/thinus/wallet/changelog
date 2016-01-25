@@ -1,0 +1,34 @@
+﻿... adding summary activity to show totals
+2016-01-13: aadded refreshing and fixed count lagging on refresh and implemented month with prev and next button
+2016-01-02: added so many things...finished autoscan, link unlinked, show unlinked, ect.
+2015-11-10: Added smsDescription field to set text to autolink categories and also added IncomeExpense type to transaction
+2015-11-09: Read SMS's and added to transaction list
+2015-11-03: Added ProgresBarDialog and read through sms's. Also added reference field on transaction for base string
+2015-11-02: Added update queries to udpate a category and transaction when editing. Started adding summary
+2015-10-28: Adding SQL support to load categoryType when loading categories from DB. And started building in Edit mode to open categories and transactions for eiting
+2015-10-25: Adding SQL support to load data from DB at startup - Categories
+2015-10-20: Added SQLLite DB and created transaction table. and started with adding the correct category ID to new transactions
+2015-10-17: Added spinner for Category Type to the AddCategoryActivity and added spinner for Categories to the AddTransactionActivity. And changed transaction layout to include the description and to display the categoy with its type.
+2015-10-15: fixed the AddCatergory not opening issue and build th add category window
+2015-10-14: Fixed startup issue with the transaction getView method not loading the Category name properly
+
+SMS Format:
+0 _id:3
+1 thread_id:1
+2 address:5554
+3 person:null
+4 date:1446579343346
+5 date_sent:1446579496000
+6 protocol:0
+7 read:0
+8 status:-1
+9 type:1
+0 reply_path_present:0
+1 subject:null
+2 body:Hello2
+3 service_center:null
+4 locked:0
+5 sub_id:-1
+6 error_code:0
+7 creator:null
+8 seen:0

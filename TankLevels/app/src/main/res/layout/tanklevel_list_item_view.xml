@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:id="@+id/tankID"
+        android:text="TankID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_gravity="end"
+        android:textAlignment="textEnd"
+        android:textSize="16dp" />
+    <TextView android:id="@+id/persentage"
+        android:text="%"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/volume"
+        android:layout_alignEnd="@+id/volume" />
+    <TextView android:id="@+id/timestamp"
+        android:text="timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:layout_below="@+id/tankID"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+    <TextView android:id="@+id/volume"
+        android:text="volume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:layout_alignBottom="@+id/timestamp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+</RelativeLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TankLevels</string>
+    <string name="hello_world">Please refresh</string>
+    <string name="action_settings">Settings</string>
+    <string name="refresh">Refresh</string>
+    <string name="refreshLocal">Refresh Local</string>
+    <string name="refreshInet">Refresh Internet</string>
+
+</resources>
