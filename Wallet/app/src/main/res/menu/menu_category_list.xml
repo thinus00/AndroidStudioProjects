@@ -7,6 +7,14 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/add_category" android:title="@string/add_category"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_only_actuals" android:title="@string/show_only_actuals"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_only_budgets" android:title="@string/show_only_budgets"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_all" android:title="@string/show_all"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_remaining" android:title="@string/show_remaining"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/refresh" android:title="@string/refresh"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

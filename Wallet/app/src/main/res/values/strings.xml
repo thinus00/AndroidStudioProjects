@@ -22,5 +22,9 @@
     <string name="show_unlinked">Show Unlinked</string>
     <string name="show_all">Show All</string>
     <string name="title_activity_category_summary">CategorySummary</string>
+    <string name="show_only_actuals">Show Only Actuals</string>
+    <string name="show_only_budgets">Show Only Budgets</string>
+    <string name="show_remaining">Show Remaining</string>
+    <string name="scan_csv">Scan CSV</string>
 
 </resources>

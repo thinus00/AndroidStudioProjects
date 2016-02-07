@@ -5,6 +5,7 @@ package com.thinus.wallet;
  */
 
 
+import android.graphics.Color;
 import android.util.Log;
 import android.widget.BaseAdapter;
 import android.view.LayoutInflater;
@@ -62,7 +63,10 @@ public class CustomBaseAdapterTransactionList extends BaseAdapter implements Fil
         holder.txtDescription.setText(searchArrayList.get(position).getDescription());
         holder.txtAmount.setText("R" + String.valueOf(searchArrayList.get(position).getAmount()));
         holder.txtDate.setText(dateFormat.format(searchArrayList.get(position).getDate()));
-
+        if (searchArrayList.get(position).getIncomeExpense() == 1)
+            holder.txtAmount.setTextColor(Color.rgb(0, 255, 0));
+        else
+            holder.txtAmount.setTextColor(-1979711488);
         return convertView;
     }
 
@@ -99,7 +103,7 @@ public class CustomBaseAdapterTransactionList extends BaseAdapter implements Fil
                     if ((constraint.equals("all")) ||
                         ((constraint.equals("unlinked")) && (dataNames.getCategoryId() == 0)) ||
                         ((constraint.equals("month")) && (((dataNames.getDate().after(TransactionListActivity.startDate)) && (dataNames.getDate().before(TransactionListActivity.endDate))) || (dataNames.getDate().equals(TransactionListActivity.startDate)) || (dataNames.getDate().equals(TransactionListActivity.endDate)))) ||
-                        ((constraint.equals("monthcategory")) && (dataNames.getCategoryId() == TransactionListActivity.catFilterID) && (dataNames.getDate().after(TransactionListActivity.startDate)) && (dataNames.getDate().before(TransactionListActivity.endDate)))){
+                        ((constraint.equals("monthcategory")) && (dataNames.getCategoryId() == TransactionListActivity.catFilterID) && (((dataNames.getDate().after(TransactionListActivity.startDate)) && (dataNames.getDate().before(TransactionListActivity.endDate))) || (dataNames.getDate().equals(TransactionListActivity.startDate)) || (dataNames.getDate().equals(TransactionListActivity.endDate))))){
                             FilteredArrayNames.add(dataNames);
                     }
                 }

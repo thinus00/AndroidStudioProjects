@@ -136,6 +136,25 @@ public class Transaction {
     public void Save()
     {
         try {
+            if (_categoryId == 0) {
+                //try to autolink
+                String desc = _description;
+                boolean foundDesc = false;
+                for (Category c : CategoryListActivity.categoryItems) {
+                    for (String s : c.getSMSDescription()) {
+                        if (desc.contains(s)) {
+                            foundDesc = true;
+                            //update category id
+                            _categoryId = c.getId();
+                            break;
+                        }
+                    }
+                    if (foundDesc) {
+                        break;
+                    }
+                }
+            }
+
             if (_description.contains("'")) {
                 _description = _description.replace("'","//");
             }

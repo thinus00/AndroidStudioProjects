@@ -21,6 +21,8 @@ public class CategoryListActivity extends ActionBarActivity {
 
     public static ArrayList<Category> categoryItems;
 
+    public static boolean ShowRemaining = false;
+
     private static ArrayList<String> categoryItemsspinner;
     public static ArrayList<String> GetCategorycategoryItemsSpinner() {
         if (categoryItemsspinner==null) {
@@ -107,6 +109,27 @@ public class CategoryListActivity extends ActionBarActivity {
             intent.putExtra("mode", "add");
             intent.putExtra("id", 0);
             this.startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.show_only_actuals) {
+            baseCategoryListAdapter.getFilter().filter("actuals", null);
+            return true;
+        }
+
+        if (id == R.id.show_only_budgets) {
+            baseCategoryListAdapter.getFilter().filter("budgets", null);
+            return true;
+        }
+
+        if (id == R.id.show_all) {
+            baseCategoryListAdapter.getFilter().filter("all", null);
+            return true;
+        }
+
+        if (id == R.id.show_remaining) {
+            ShowRemaining = !ShowRemaining;
+            refreshList();
             return true;
         }
 

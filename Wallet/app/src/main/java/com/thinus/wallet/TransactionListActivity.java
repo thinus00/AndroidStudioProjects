@@ -6,10 +6,13 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.Context;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,15 +24,24 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 
 public class TransactionListActivity extends ActionBarActivity {
@@ -40,6 +52,7 @@ public class TransactionListActivity extends ActionBarActivity {
     public static SQLiteDatabase db;
     private CustomBaseAdapterTransactionList baseTransactionListAdapter;
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static SimpleDateFormat dateFormatCSV = new SimpleDateFormat("yyyyMMdd");
 
     public static int monthstartonday = 23;
     public static int day = 0;
@@ -153,6 +166,124 @@ public class TransactionListActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case FILE_SELECT_CODE:
+                if (resultCode == RESULT_OK) {
+                    // Get the Uri of the selected file
+                    Uri uri = data.getData();
+                    final String path0 = uri.getPath();
+                    final ProgressDialog barSMSScanDialog = new ProgressDialog(this);
+                    barSMSScanDialog.setTitle("Scan CSV");
+                    barSMSScanDialog.setMessage("Scanning...");
+                    barSMSScanDialog.setProgressStyle(barSMSScanDialog.STYLE_HORIZONTAL);
+                    barSMSScanDialog.setProgress(0);
+                    barSMSScanDialog.setMax(100); //no of SMS's to scan
+
+                    barSMSScanDialog.show();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            int transactionItemscount = 0;
+
+
+                            //StringBuilder stringList = new StringBuilder();
+                            ArrayList<String> stringList = new ArrayList<String>();
+                            try {
+                                File myFile2 = new File(path0);
+                                myFile2.createNewFile();
+                                FileInputStream fis = new FileInputStream(myFile2);
+                                BufferedReader r = new BufferedReader(new InputStreamReader(fis));
+                                String line;
+                                while ((line = r.readLine()) != null) {
+                                    stringList.add(line);
+                                }
+                                fis.close();
+                            } catch (IOException ioe) {
+                                //Toast.makeText(TransactionListActivity.this.getApplicationContext(), ioe.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+
+                            barSMSScanDialog.setMax(stringList.size());
+
+                            String _account = "";
+                            for (String s : stringList) {
+                                if (!s.equals("")) {
+                                    String[] array = s.split(",");
+                                    if (_account.equals("") && (array[2].equals("\"ACC-NO\""))) {
+                                        _account = array[1].substring(array[1].length() - 4);
+                                    }
+                                    if (array[0].equals("\"HIST\"") || array[0].equals("\"PROV\"")) {
+                                        double amount = Double.parseDouble(array[3]);
+                                        int categoryId = 0;
+                                        String account = _account;
+                                        String description = "";
+                                        if (array[2].equals("\"##\""))
+                                            description = array[4] + " - " + array[5];
+                                        else
+                                            description = array[5];
+                                        String date = array[1];
+                                        int incom_expense = 0;
+
+                                        if (array[3].startsWith("+"))
+                                            incom_expense = 1;
+                                        else
+                                            incom_expense = 2;
+
+                                        if (amount < 0)
+                                            amount = amount * -1;
+
+                                        if (amount > 0) {
+
+                                            try {
+                                                Transaction sr0 = new Transaction(0,//get next ID
+                                                        amount,
+                                                        0,
+                                                        account,
+                                                        description,
+                                                        dateFormatCSV.parse(date),
+                                                        s,
+                                                        incom_expense);
+
+                                                if (sr0 != null) {
+                                                    boolean dup = checkForDuplicateTrans(sr0);
+                                                    if (!dup) {
+                                                        sr0.Save();
+                                                        transactionItems.add(sr0);
+                                                        transactionItemscount++;
+                                                    }
+                                                }
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                }
+                                barSMSScanDialog.incrementProgressBy(1);
+                            }
+                            barSMSScanDialog.dismiss();
+                            final String message = "Found " + transactionItemscount + " transactions";
+                            TransactionListActivity.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(TransactionListActivity.this.getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            transactionItems.clear();
+                            LoadTransactionsFromDB();
+                            TransactionListActivity.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    TransactionListActivity.this.refreshList();
+                                }
+                            });
+                        }
+                    }).start();
+
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -181,6 +312,9 @@ public class TransactionListActivity extends ActionBarActivity {
 
 
         if (id == R.id.refresh) {
+            transactionItems.clear();
+            LoadTransactionsFromDB();
+
             refreshList();
             return true;
         }
@@ -228,6 +362,11 @@ public class TransactionListActivity extends ActionBarActivity {
             return true;
         }
 
+        if (id == R.id.scan_csv) {
+            showFileChooser();
+            return true;
+
+        }
         if (id == R.id.scan_sms) {
             final ProgressDialog barSMSScanDialog = new ProgressDialog(this);
             barSMSScanDialog.setTitle("Scan SMS's");
@@ -290,6 +429,11 @@ public class TransactionListActivity extends ActionBarActivity {
                     });
                     transactionItems.clear();
                     LoadTransactionsFromDB();
+                    TransactionListActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            TransactionListActivity.this.refreshList();
+                        }
+                    });
                 }
             }).start();
 
@@ -309,15 +453,19 @@ public class TransactionListActivity extends ActionBarActivity {
                 @Override
                 public void run() {
                     barTransScanDialog.setMax(transactionItems.size());
+                    int foundCount = 0;
+                    int linkedCount = 0;
+
                     for (Transaction t : transactionItems){
                         barTransScanDialog.incrementProgressBy(1);
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(1);
                         } catch (Exception ex) {
 
                         }
 
                         if (t.getCategoryId() == 0) {
+                            foundCount++;
                             String desc = t.getDescription();
                             boolean foundDesc = false;
                             for (Category c : CategoryListActivity.categoryItems) {
@@ -328,6 +476,7 @@ public class TransactionListActivity extends ActionBarActivity {
                                         //update category id
                                         t.setCategoryId(c.getId());
                                         t.Update();
+                                        linkedCount++;
                                         break;
                                     }
                                 }
@@ -337,8 +486,19 @@ public class TransactionListActivity extends ActionBarActivity {
                             }
                         }
                     }
-
                     barTransScanDialog.dismiss();
+                    final String message = "Linked " + linkedCount + " transactions.\nCould not link " + (foundCount-linkedCount) + " transactions";
+                    TransactionListActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(TransactionListActivity.this.getApplicationContext(), message, Toast.LENGTH_LONG).show();
+
+                        }
+                    });
+                    TransactionListActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            TransactionListActivity.this.refreshList();
+                        }
+                    });
                 }
             }).start();
             return true;
@@ -436,6 +596,25 @@ public class TransactionListActivity extends ActionBarActivity {
         return null;
     }
 
+    public static boolean checkForDuplicateTrans(Transaction sr){
+        for (Transaction t : transactionItems){
+            if (t.getAmount() == sr.getAmount()){
+
+                if (t.getDate().equals(sr.getDate()))
+                    return true;
+                Calendar c = Calendar.getInstance();
+                c.setTime(sr.getDate());
+                c.add(Calendar.DATE, 7);  // number of days to add
+                Calendar c2 = Calendar.getInstance();
+                c2.setTime(sr.getDate());
+                c2.add(Calendar.DATE, -7);  // number of days to add
+                if (t.getDate().after(c2.getTime()) && t.getDate().before(c.getTime()))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean deleteTransactionByID(int id){
         for (Transaction t : transactionItems){
             if (t.getId() == id) {
@@ -447,7 +626,7 @@ public class TransactionListActivity extends ActionBarActivity {
         return false;
     }
 
-    private Transaction ProcessSMSBody(String msgDate, String msgBody, boolean saveTrans) {
+    public static Transaction ProcessSMSBody(String msgDate, String msgBody, boolean saveTrans) {
         Transaction sr0 = null;
         try {
 
@@ -884,6 +1063,37 @@ public class TransactionListActivity extends ActionBarActivity {
                 }
             });
         }
+    }
+
+    private static final int FILE_SELECT_CODE = 0;
+    private void showFileChooser() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        try {
+            startActivityForResult(
+                    Intent.createChooser(intent, "Select a File to Upload"),
+                    FILE_SELECT_CODE);
+        } catch (android.content.ActivityNotFoundException ex) {
+            // Potentially direct the user to the Market with a Dialog
+            Toast.makeText(this, "Please install a File Manager.",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
     }
 }
 

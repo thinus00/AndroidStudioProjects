@@ -1,5 +1,6 @@
 package com.thinus.wallet;
 
+import android.content.res.ColorStateList;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -48,43 +49,63 @@ public class Summary extends ActionBarActivity {
                 transferBudget = transferBudget + s.getBudget();
 
         }
-        //recurring = Double.valueOf(String.format("%.2f", recurring));
-        //daytoday = Double.valueOf(String.format("%.2f", daytoday));
-        //income = Double.valueOf(String.format("%.2f", income));
-        //transfer = Double.valueOf(String.format("%.2f", transfer));
-        //total = Double.valueOf(String.format("%.2f", total));
-        //recurringBudget = Double.valueOf(String.format("%.2f", recurringBudget));
-        //daytodayBudget = Double.valueOf(String.format("%.2f", daytodayBudget));
-        //incomeBudget = Double.valueOf(String.format("%.2f", incomeBudget));
-        //transferBudget = Double.valueOf(String.format("%.2f", transferBudget));
 
         totalBudget = incomeBudget - recurringBudget - daytodayBudget;
-        //totalBudget = Double.valueOf(String.format("%.2f", totalBudget));
 
-        TextView textView_recurringvalue = (TextView)findViewById(R.id.textView_recurringvalue);
-        textView_recurringvalue.setText(String.format("%.2f", recurring));
-        TextView textView_recurringbudget = (TextView)findViewById(R.id.textView_recurringbudget);
-        textView_recurringbudget.setText(String.format("%.2f", recurringBudget) + " (" + String.format("%.2f", recurringBudget-recurring) + ")");
+        TextView textView_recurring_actual = (TextView)findViewById(R.id.textView_recurring_actual);
+        textView_recurring_actual.setText(String.format("%.2f", recurring));
+        TextView textView_recurring_budget = (TextView)findViewById(R.id.textView_recurring_budget);
+        textView_recurring_budget.setText(String.format("%.2f", recurringBudget));
+        TextView textView_recurring_diff = (TextView)findViewById(R.id.textView_recurring_diff);
+        textView_recurring_diff.setText(String.format("%.2f", recurringBudget-recurring));
+        if ((recurringBudget-recurring)<0)
+            textView_recurring_diff.setTextColor(0xffff0000);
+        else
+            textView_recurring_diff.setTextColor(0xff00fa00);
 
-        TextView textView_daytodayvalue = (TextView)findViewById(R.id.textView_daytodayvalue);
-        textView_daytodayvalue.setText(String.format("%.2f", daytoday));
-        TextView textView_daytodaybudget = (TextView)findViewById(R.id.textView_daytodaybudget);
-        textView_daytodaybudget.setText(String.format("%.2f", daytodayBudget) + " (" + String.format("%.2f", daytodayBudget-daytoday) + ")");
+        TextView textView_daytoday_actual = (TextView)findViewById(R.id.textView_daytoday_actual);
+        textView_daytoday_actual.setText(String.format("%.2f", daytoday));
+        TextView textView_daytoday_budget = (TextView)findViewById(R.id.textView_daytoday_budget);
+        textView_daytoday_budget.setText(String.format("%.2f", daytodayBudget));
+        TextView textView_daytoday_diff = (TextView)findViewById(R.id.textView_daytoday_diff);
+        textView_daytoday_diff.setText(String.format("%.2f", daytodayBudget-daytoday));
+        if ((daytodayBudget-daytoday)<0)
+            textView_daytoday_diff.setTextColor(0xffff0000);
+        else
+            textView_daytoday_diff.setTextColor(0xff00fa00);
 
-        TextView textView_incomevalue = (TextView)findViewById(R.id.textView_incomevalue);
-        textView_incomevalue.setText(String.format("%.2f", income));
-        TextView textView_incomebudget = (TextView)findViewById(R.id.textView_incomebudget);
-        textView_incomebudget.setText(String.format("%.2f", incomeBudget) + " (" + String.format("%.2f", income-incomeBudget) + ")");
+        TextView textView_income_actual = (TextView)findViewById(R.id.textView_income_actual);
+        textView_income_actual.setText(String.format("%.2f", income));
+        TextView textView_income_budget = (TextView)findViewById(R.id.textView_income_budget);
+        textView_income_budget.setText(String.format("%.2f", incomeBudget));
+        TextView textView_income_diff = (TextView)findViewById(R.id.textView_income_diff);
+        textView_income_diff.setText(String.format("%.2f", income-incomeBudget));
+        if ((income-incomeBudget)<0)
+            textView_income_diff.setTextColor(0xffff0000);
+        else
+            textView_income_diff.setTextColor(0xff00fa00);
 
-        TextView textView_transfervalue = (TextView)findViewById(R.id.textView_transfervalue);
-        textView_transfervalue.setText(String.format("%.2f", transfer));
-        TextView textView_transferbudget = (TextView)findViewById(R.id.textView_transferbudget);
-        textView_transferbudget.setText(String.format("%.2f", transferBudget) + " (" + String.format("%.2f", transferBudget-transfer) + ")");
+        TextView textView_transfer_actual = (TextView)findViewById(R.id.textView_transfer_actual);
+        textView_transfer_actual.setText(String.format("%.2f", transfer));
+        TextView textView_transfer_budget = (TextView)findViewById(R.id.textView_transfer_budget);
+        textView_transfer_budget.setText(String.format("%.2f", transferBudget));
+        TextView textView_transfer_diff = (TextView)findViewById(R.id.textView_transfer_diff);
+        textView_transfer_diff.setText(String.format("%.2f", transferBudget-transfer));
 
-        TextView textView_totalvalue = (TextView)findViewById(R.id.textView_totalvalue);
-        textView_totalvalue.setText(String.format("%.2f", total));
-        TextView textView_totalbudget = (TextView)findViewById(R.id.textView_totalbudget);
-        textView_totalbudget.setText(String.format("%.2f", totalBudget) + " (" + String.format("%.2f", total - totalBudget) + ")");
+        TextView textView_total_actual = (TextView)findViewById(R.id.textView_total_actual);
+        textView_total_actual.setText(String.format("%.2f", total));
+        TextView textView_total_budget = (TextView)findViewById(R.id.textView_total_budget);
+        textView_total_budget.setText(String.format("%.2f", totalBudget));
+        if (totalBudget<0)
+            textView_total_budget.setTextColor(0xffff0000);
+        else
+            textView_total_budget.setTextColor(0xff00fa00);
+        TextView textView_total_diff = (TextView)findViewById(R.id.textView_total_diff);
+        textView_total_diff.setText(String.format("%.2f", total-totalBudget));
+        if (total-totalBudget<0)
+            textView_total_diff.setTextColor(0xffff0000);
+        else
+            textView_total_diff.setTextColor(0xff00fa00);
     }
 
 

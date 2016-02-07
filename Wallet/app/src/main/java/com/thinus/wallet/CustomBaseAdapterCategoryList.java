@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * Created by thinus on 2014/12/27.
  */
 
-public class CustomBaseAdapterCategoryList extends BaseAdapter {
+public class CustomBaseAdapterCategoryList extends BaseAdapter implements Filterable {
     private static ArrayList<Category> searchArrayList;
 
     private LayoutInflater mInflater;
@@ -80,13 +80,24 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter {
         // keep color black
             holder.txtBudget.setTextColor(-1979711488);
         } else {
-            if (budgetTotal <= searchArrayList.get(position).getBudget()) {
-                holder.txtBudget.setTextColor(Color.rgb(0, 255, 0));
+            if (searchArrayList.get(position).getCatType() == Category.CategoryType.Income) {
+                if (budgetTotal >= searchArrayList.get(position).getBudget()) {
+                    holder.txtBudget.setTextColor(Color.rgb(0, 255, 0));
+                } else {
+                    holder.txtBudget.setTextColor(Color.rgb(255, 0, 0));
+                }
             } else {
-                holder.txtBudget.setTextColor(Color.rgb(255, 0, 0));
+                if (budgetTotal <= searchArrayList.get(position).getBudget()) {
+                    holder.txtBudget.setTextColor(Color.rgb(0, 255, 0));
+                } else {
+                    holder.txtBudget.setTextColor(Color.rgb(255, 0, 0));
+                }
             }
         }
-        holder.txtBudget.setText(String.valueOf(budgetTotal) + " of " + String.valueOf(searchArrayList.get(position).getBudget()));
+        if (CategoryListActivity.ShowRemaining)
+            holder.txtBudget.setText(String.format("%.2f", searchArrayList.get(position).getBudget()-budgetTotal));
+        else
+            holder.txtBudget.setText(String.format("%.2f", budgetTotal) + " of " + String.format("%.2f", searchArrayList.get(position).getBudget()));
 
         Category c = CategoryListActivity.getCategoryByID(searchArrayList.get(position).getId());
         c.setBudgetTotal(budgetTotal);
@@ -99,4 +110,44 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter {
         ProgressBar pBar;
         TextView txtBudget;
     }
+
+    @Override
+    public Filter getFilter() {
+
+        Filter filter = new Filter() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                searchArrayList = (ArrayList<Category>) results.values;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                FilterResults results = new FilterResults();
+                ArrayList<Category> FilteredArrayNames = new ArrayList<Category>();
+
+                // perform your search here using the searchConstraint String.
+
+                constraint = constraint.toString().toLowerCase();
+                for (int i = 0; i < CategoryListActivity.categoryItems.size(); i++) {
+                    Category dataNames = CategoryListActivity.categoryItems.get(i);
+                    if ((constraint.equals("all")) ||
+                        ((constraint.equals("budgets")) && (dataNames.getBudget() != 0)) ||
+                        ((constraint.equals("actuals")) && (dataNames.getBudget() != 0) || (dataNames.getBudgetTotal() != 0))) {
+                        FilteredArrayNames.add(dataNames);
+                    }
+                }
+                results.count = FilteredArrayNames.size();
+                results.values = FilteredArrayNames;
+
+                return results;
+            }
+        };
+
+        return filter;
+    }
+
 }

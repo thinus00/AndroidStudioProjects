@@ -54,10 +54,10 @@ public class TransactionAddActivity extends ActionBarActivity {
         if (mode.equals("add")) {
             final Calendar calendar = Calendar.getInstance();
             int yy = calendar.get(Calendar.YEAR);
-            int mm = calendar.get(Calendar.MONTH);
+            int mm = calendar.get(Calendar.MONTH)+1;
             int dd = calendar.get(Calendar.DAY_OF_MONTH);
             EditText _editText_date = (EditText)findViewById(R.id.editText_date);
-            _editText_date.setText(yy+"/"+mm+"/"+dd);
+            _editText_date.setText(yy+"-"+mm+"-"+dd);
         } else{
             if (mode.equals("edit")) {
                 Transaction trans = TransactionListActivity.getTransactionByID(modeid);
