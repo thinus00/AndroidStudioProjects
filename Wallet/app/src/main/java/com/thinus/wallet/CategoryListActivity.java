@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class CategoryListActivity extends ActionBarActivity {
 
     public static ArrayList<Category> categoryItems;
-
+    private Menu menuRef;
     public static boolean ShowRemaining = false;
 
     private static ArrayList<String> categoryItemsspinner;
@@ -32,8 +32,7 @@ public class CategoryListActivity extends ActionBarActivity {
 
         for (int i = 0; i < categoryItems.size(); i++)
         {
-
-            categoryItemsspinner.add(((Category)categoryItems.get(i)).getName());
+            categoryItemsspinner.add((categoryItems.get(i)).getName());
         }
 
         return categoryItemsspinner;
@@ -55,6 +54,7 @@ public class CategoryListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_list);
+
 
         final ListView lv1 = (ListView) findViewById(R.id.listViewCategories);
         baseCategoryListAdapter = new CustomBaseAdapterCategoryList(this, categoryItems);
@@ -83,6 +83,8 @@ public class CategoryListActivity extends ActionBarActivity {
                 return true;
             }
         });
+
+        calcBugetTotals();
     }
 
 
@@ -90,6 +92,7 @@ public class CategoryListActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_category_list, menu);
+        this.menuRef = menu;
         return true;
     }
 
@@ -129,9 +132,21 @@ public class CategoryListActivity extends ActionBarActivity {
 
         if (id == R.id.show_remaining) {
             ShowRemaining = !ShowRemaining;
+            MenuItem mi = (MenuItem)menuRef.findItem(R.id.show_remaining);
+            if (ShowRemaining) {
+                mi.setTitle(getResources().getString(R.string.show_actuals));
+            } else {
+                mi.setTitle(getResources().getString(R.string.show_remaining));
+            }
             refreshList();
             return true;
         }
+
+        if (id == R.id.show_budgetnotspent) {
+            baseCategoryListAdapter.getFilter().filter("budgetsnotspent", null);
+            return true;
+        }
+
 
         if (id == R.id.refresh) {
             refreshList();
@@ -239,8 +254,36 @@ public class CategoryListActivity extends ActionBarActivity {
         }
     }
 
+    public static void calcBugetTotals() {
+        for (int i = 0; i < categoryItems.size(); i++)
+        {
+            Category c = categoryItems.get(i);
+
+            double budgetTotal = 0;
+            for (int j = 0; j < TransactionListActivity.transactionItems_month.size(); j++) {
+                Transaction t = TransactionListActivity.transactionItems_month.get(j);
+                if (t.getCategoryId() == c.getId()) {
+                    if ((c.getCatType() == Category.CategoryType.DayToDay || c.getCatType() == Category.CategoryType.Recurring) && t.getIncomeExpense() == 2)
+                        budgetTotal = budgetTotal + t.getAmount();
+                    if ((c.getCatType() == Category.CategoryType.DayToDay || c.getCatType() == Category.CategoryType.Recurring) && t.getIncomeExpense() == 1)
+                        budgetTotal = budgetTotal - t.getAmount();
+                    if ((c.getCatType() == Category.CategoryType.Income) && t.getIncomeExpense() == 2)
+                        budgetTotal = budgetTotal - t.getAmount();
+                    if ((c.getCatType() == Category.CategoryType.Income) && t.getIncomeExpense() == 1)
+                        budgetTotal = budgetTotal + t.getAmount();
+                    if ((c.getCatType() == Category.CategoryType.Transfer) && t.getIncomeExpense() == 2)
+                        budgetTotal = budgetTotal + t.getAmount();
+                    if ((c.getCatType() == Category.CategoryType.Transfer) && t.getIncomeExpense() == 1)
+                        budgetTotal = budgetTotal - t.getAmount();
+                }
+            }
+            c.setBudgetTotal(budgetTotal);
+        }
+    }
+
     public void refreshList()
     {
+        calcBugetTotals();
         Toast.makeText(getApplicationContext(), "Refreshing list", Toast.LENGTH_LONG).show();
         baseCategoryListAdapter.notifyDataSetChanged();
     }

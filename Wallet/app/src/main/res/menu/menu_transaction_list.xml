@@ -4,17 +4,23 @@
 
     <item
         android:id="@+id/action_prev"
-        android:icon="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+        android:icon="@drawable/ic_arrow_back_white_48dp"
         android:title=""
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
     <item
         android:id="@+id/action_next"
-        android:icon="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+        android:icon="@drawable/ic_arrow_forward_white_48dp"
         android:title=""
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
 
-    <item android:id="@+id/refresh" android:title="@string/refresh"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_refresh_white_48dp"
+        android:title=""
+        app:showAsAction="always"/>
+
+    <!--<item android:id="@+id/refresh" android:title="@string/refresh"
+        android:orderInCategory="100" app:showAsAction="never" />-->
     <item android:id="@+id/add_transaction" android:title="@string/add_transaction"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/categories" android:title="@string/categories"
@@ -31,6 +37,10 @@
     <item android:id="@+id/scan_sms" android:title="@string/scan_sms"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/link_categories_unlinked" android:title="@string/link_categories_unlinked"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/backup_database" android:title="@string/backup_database"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/restore_database" android:title="@string/restore_database"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/create_database" android:title="@string/create_database"
         android:orderInCategory="100" app:showAsAction="never" />

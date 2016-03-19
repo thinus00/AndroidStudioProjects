@@ -54,40 +54,25 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter implements Filter
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        //);setText(searchArrayList.get(position).getCatType().toString()
-        holder.txtName.setText(searchArrayList.get(position).getName());
+        Category c = searchArrayList.get(position);
+        holder.txtName.setText(c.getName());
         holder.pBar.setMax(100);
-        double budgetTotal = 0;
-        for (int i = 0; i < TransactionListActivity.transactionItems_month.size(); i++) {
-            if (TransactionListActivity.transactionItems_month.get(i).getCategoryId() == searchArrayList.get(position).getId()) {
-                if ((searchArrayList.get(position).getCatType() == Category.CategoryType.DayToDay || searchArrayList.get(position).getCatType() == Category.CategoryType.Recurring) && TransactionListActivity.transactionItems_month.get(i).getIncomeExpense() == 2)
-                    budgetTotal = budgetTotal + TransactionListActivity.transactionItems_month.get(i).getAmount();
-                if ((searchArrayList.get(position).getCatType() == Category.CategoryType.DayToDay || searchArrayList.get(position).getCatType() == Category.CategoryType.Recurring) && TransactionListActivity.transactionItems_month.get(i).getIncomeExpense() == 1)
-                    budgetTotal = budgetTotal - TransactionListActivity.transactionItems_month.get(i).getAmount();
-                if ((searchArrayList.get(position).getCatType() == Category.CategoryType.Income) && TransactionListActivity.transactionItems_month.get(i).getIncomeExpense() == 2)
-                    budgetTotal = budgetTotal - TransactionListActivity.transactionItems_month.get(i).getAmount();
-                if ((searchArrayList.get(position).getCatType() == Category.CategoryType.Income) && TransactionListActivity.transactionItems_month.get(i).getIncomeExpense() == 1)
-                    budgetTotal = budgetTotal + TransactionListActivity.transactionItems_month.get(i).getAmount();
-                if ((searchArrayList.get(position).getCatType() == Category.CategoryType.Transfer) && TransactionListActivity.transactionItems_month.get(i).getIncomeExpense() == 2)
-                    budgetTotal = budgetTotal + TransactionListActivity.transactionItems_month.get(i).getAmount();
-                if ((searchArrayList.get(position).getCatType() == Category.CategoryType.Transfer) && TransactionListActivity.transactionItems_month.get(i).getIncomeExpense() == 1)
-                    budgetTotal = budgetTotal - TransactionListActivity.transactionItems_month.get(i).getAmount();
-            }
-        }
+        double budgetTotal = c.getBudgetTotal();
+
         budgetTotal = Double.valueOf(String.format("%.2f", budgetTotal));
-        holder.pBar.setProgress((int)Math.floor((budgetTotal/(searchArrayList.get(position).getBudget()))*100));
-        if ((searchArrayList.get(position).getBudget() == 0 && budgetTotal == 0) || (searchArrayList.get(position).getCatType() == Category.CategoryType.Transfer)) {
+        holder.pBar.setProgress((int)Math.floor((budgetTotal/(c.getBudget()))*100));
+        if ((c.getBudget() == 0 && budgetTotal == 0) || (c.getCatType() == Category.CategoryType.Transfer)) {
         // keep color black
             holder.txtBudget.setTextColor(-1979711488);
         } else {
-            if (searchArrayList.get(position).getCatType() == Category.CategoryType.Income) {
-                if (budgetTotal >= searchArrayList.get(position).getBudget()) {
+            if (c.getCatType() == Category.CategoryType.Income) {
+                if (budgetTotal >= c.getBudget()) {
                     holder.txtBudget.setTextColor(Color.rgb(0, 255, 0));
                 } else {
                     holder.txtBudget.setTextColor(Color.rgb(255, 0, 0));
                 }
             } else {
-                if (budgetTotal <= searchArrayList.get(position).getBudget()) {
+                if (budgetTotal <= c.getBudget()) {
                     holder.txtBudget.setTextColor(Color.rgb(0, 255, 0));
                 } else {
                     holder.txtBudget.setTextColor(Color.rgb(255, 0, 0));
@@ -95,12 +80,9 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter implements Filter
             }
         }
         if (CategoryListActivity.ShowRemaining)
-            holder.txtBudget.setText(String.format("%.2f", searchArrayList.get(position).getBudget()-budgetTotal));
+            holder.txtBudget.setText(String.format("%.2f", c.getBudget()-budgetTotal));
         else
-            holder.txtBudget.setText(String.format("%.2f", budgetTotal) + " of " + String.format("%.2f", searchArrayList.get(position).getBudget()));
-
-        Category c = CategoryListActivity.getCategoryByID(searchArrayList.get(position).getId());
-        c.setBudgetTotal(budgetTotal);
+            holder.txtBudget.setText(String.format("%.2f", budgetTotal) + " of " + String.format("%.2f", c.getBudget()));
 
         return convertView;
     }
@@ -134,9 +116,17 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter implements Filter
                 constraint = constraint.toString().toLowerCase();
                 for (int i = 0; i < CategoryListActivity.categoryItems.size(); i++) {
                     Category dataNames = CategoryListActivity.categoryItems.get(i);
-                    if ((constraint.equals("all")) ||
-                        ((constraint.equals("budgets")) && (dataNames.getBudget() != 0)) ||
-                        ((constraint.equals("actuals")) && (dataNames.getBudget() != 0) || (dataNames.getBudgetTotal() != 0))) {
+
+                    boolean all = constraint.equals("all");
+                    boolean budgets = constraint.equals("budgets") && (dataNames.getBudget() != 0);
+                    boolean budgetsnotspent = constraint.equals("budgetsnotspent") && (dataNames.getBudget() != 0) && (dataNames.getBudget() > dataNames.getBudgetTotal());
+                    boolean actuals = constraint.equals("actuals") && (dataNames.getBudgetTotal() != 0);
+
+                    if ((all) ||
+                        (budgets) ||
+                        (budgetsnotspent) ||
+                        (actuals)) {
+
                         FilteredArrayNames.add(dataNames);
                     }
                 }

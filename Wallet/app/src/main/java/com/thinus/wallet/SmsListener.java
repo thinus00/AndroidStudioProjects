@@ -1,9 +1,15 @@
 package com.thinus.wallet;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsMessage;
 import android.widget.Toast;
 
@@ -28,6 +34,7 @@ public class SmsListener extends BroadcastReceiver {
                 try{
                     Object[] pdus = (Object[]) bundle.get("pdus");
                     msgs = new SmsMessage[pdus.length];
+                    String message = "";
                     for(int i=0; i<msgs.length; i++){
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         msg_from = msgs[i].getOriginatingAddress();
@@ -42,14 +49,26 @@ public class SmsListener extends BroadcastReceiver {
                         if (sr2 == null) {
                             Transaction sr1 = TransactionListActivity.ProcessSMSBody(msgDate, msgBody, true);
                             if (sr1 != null) {
-                                if (sr1.getCategoryId() != 0) {
-                                    Toast.makeText(context, "Wallet. Received sms for R" + sr1.getAmount() + " for " + sr1.getDescription() + ". Linked to " + sr1.getCategoryName(), Toast.LENGTH_LONG).show();
-                                } else {
-                                    Toast.makeText(context, "Wallet. Received sms for R" + sr1.getAmount() + " for " + sr1.getDescription() + ". Could not link", Toast.LENGTH_LONG).show();
-                                }
+                                message = "SMS:R" + sr1.getAmount() + " for " + sr1.getDescription() + ". Linked to " + sr1.getCategoryName() + "\r\n";
                             }
                         }
                     }
+
+                    if (!message.equals("")) {
+                        //Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+
+                        PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), new Intent(context, TransactionListActivity.class), 0);
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                        Notification notification = mBuilder.setSmallIcon(R.drawable.ic_launcher)
+                                .setAutoCancel(true)
+                                .setContentTitle("Wallet")
+                                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                                .setContentIntent(pIntent)
+                                .setContentText(message).build();
+
+                        TransactionListActivity.notificationManager.notify(0, notification);
+                    }
+
                 }catch(Exception e){
 //                            Log.d("Exception caught",e.getMessage());
                 }

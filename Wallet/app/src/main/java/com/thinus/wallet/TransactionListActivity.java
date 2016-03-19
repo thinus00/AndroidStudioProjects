@@ -1,6 +1,9 @@
 package com.thinus.wallet;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -32,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +53,7 @@ public class TransactionListActivity extends ActionBarActivity {
     public static ArrayList<Transaction> transactionItems;
     public static ArrayList<Transaction> transactionItems_month;
 
+    public static NotificationManager notificationManager;
     public static SQLiteDatabase db;
     private CustomBaseAdapterTransactionList baseTransactionListAdapter;
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -68,6 +73,9 @@ public class TransactionListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_list);
+
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
@@ -149,6 +157,7 @@ public class TransactionListActivity extends ActionBarActivity {
                 }
             });
         }
+
     }
     @Override
     protected void onResume() {
@@ -205,6 +214,10 @@ public class TransactionListActivity extends ActionBarActivity {
 
                             barSMSScanDialog.setMax(stringList.size());
 
+
+                            //Credit-Prov "PROV",20160120,"",-0000000000623.10,"C*ANB VET      NB6019    HONEY","",0,000.00
+                            //cheque-prov "PROV",20160205,"",-0000000000280.35,"OUTSTANDING CARD AUTHORISATION","Cltx Five Sta2016-02-05 15H14",6099,000.00
+                            //cheque-hist "HIST",20160107,"",-0000000001500.00,"IB TRANSFER TO","CCard          11H36",378,000.00
                             String _account = "";
                             for (String s : stringList) {
                                 if (!s.equals("")) {
@@ -219,8 +232,13 @@ public class TransactionListActivity extends ActionBarActivity {
                                         String description = "";
                                         if (array[2].equals("\"##\""))
                                             description = array[4] + " - " + array[5];
-                                        else
-                                            description = array[5];
+                                        else {
+                                            if (array[5].equals("\"\"")) {
+                                                description = array[4];
+                                            } else {
+                                                description = array[5];
+                                            }
+                                        }
                                         String date = array[1];
                                         int incom_expense = 0;
 
@@ -311,7 +329,8 @@ public class TransactionListActivity extends ActionBarActivity {
         }
 
 
-        if (id == R.id.refresh) {
+        if (id == R.id.action_refresh) {
+            Toast.makeText(getApplicationContext(), "Refreshing list", Toast.LENGTH_LONG).show();
             transactionItems.clear();
             LoadTransactionsFromDB();
 
@@ -334,6 +353,7 @@ public class TransactionListActivity extends ActionBarActivity {
         }
 
         if (id == R.id.summary) {
+            CategoryListActivity.calcBugetTotals();
             Intent intent = new Intent(TransactionListActivity.this, Summary.class);
             this.startActivity(intent);
             return true;
@@ -504,11 +524,84 @@ public class TransactionListActivity extends ActionBarActivity {
             return true;
         }
 
+        if (id == R.id.backup_database) {
+            try {
+                File sd = Environment.getExternalStorageDirectory();
+                File data = Environment.getDataDirectory();
+
+                if (sd.canWrite()) {
+                    String  currentDBPath= "//data//" + "com.thinus.wallet"
+                            + "//databases//" + "WalletDB";
+                    String backupDBPath  = "/BackupFolder/WalletDB";
+                    String backupDBDirPath  = "/BackupFolder";
+                    File currentDB = new File(data, currentDBPath);
+                    File backupDB = new File(sd, backupDBPath);
+                    File backupDBDir = new File(sd, backupDBDirPath);
+                    if(!backupDBDir.exists()) {
+                        if (!backupDBDir.mkdirs()) {
+                            Toast.makeText(getBaseContext(), "Could not make dir " + backupDBDir.getPath(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                    Toast.makeText(getBaseContext(), "DB backuped to " + backupDB.toString(),Toast.LENGTH_LONG).show();
+                }
+            } catch (Exception e) {
+                Toast.makeText(getBaseContext(), e.toString(), Toast.LENGTH_LONG).show();
+            }
+            return true;
+        }
+
+        if (id == R.id.restore_database) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            try {
+                builder
+                        .setTitle("Restore DB")
+                        .setMessage("Are you sure?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Yes button clicked, do something
+                                try {
+                                    File sd = Environment.getExternalStorageDirectory();
+                                    File data = Environment.getDataDirectory();
+
+                                    if (sd.canWrite()) {
+                                        String currentDBPath = "//data//" + "com.thinus.wallet"
+                                                + "//databases//" + "WalletDB";
+                                        String backupDBPath = "/BackupFolder/WalletDB";
+                                        File backupDB = new File(data, currentDBPath);
+                                        File currentDB = new File(sd, backupDBPath);
+
+                                        FileChannel src = new FileInputStream(currentDB).getChannel();
+                                        FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                                        dst.transferFrom(src, 0, src.size());
+                                        src.close();
+                                        dst.close();
+                                        Toast.makeText(getBaseContext(), "DB Restored from " + backupDB.toString(), Toast.LENGTH_LONG).show();
+                                    }
+                                } catch (Exception e) {
+                                    Toast.makeText(getBaseContext(), e.toString(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            } catch (Exception ex) {
+                Toast.makeText(getBaseContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+            return true;
+        }
+
         if (id == R.id.create_database) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             try {
                 builder
-                        .setTitle("Wipre Database")
+                        .setTitle("Recreate Database")
                         .setMessage("Are you sure?")
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -529,16 +622,16 @@ public class TransactionListActivity extends ActionBarActivity {
                                     CategoryListActivity.categoryItems = new ArrayList<Category>();
                                     //CategoryListActivity.AddTestArray();
                                     //AddTestArray();
-                                    //Toast.makeText(getApplicationContext(), "Done", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getBaseContext(), "Done", Toast.LENGTH_LONG).show();
                                 } catch (Exception ex) {
-                                    Toast.makeText(getApplicationContext(), ex.toString(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getBaseContext(), ex.toString(), Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
                         .setNegativeButton("No", null)
                         .show();
             } catch (Exception ex) {
-                Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
             }
 
             return true;
@@ -1023,7 +1116,7 @@ public class TransactionListActivity extends ActionBarActivity {
 
     public void refreshList() {
         if (!mode.equals("category")) {
-            Toast.makeText(getApplicationContext(), "Refreshing list", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "Refreshing list", Toast.LENGTH_LONG).show();
             baseTransactionListAdapter.getFilter().filter("month", new Filter.FilterListener() {
                 public void onFilterComplete(int count) {
                     setTitle("Wallet (" + count + ") - " + monthName + " " + year);

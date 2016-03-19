@@ -7,11 +7,59 @@
     tools:context="com.thinus.wallet.Summary">
 
     <TableLayout
+        android:id="@+id/tablelayout1"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:stretchColumns="*">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:text="Type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_type_label"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Budget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_budget"
+                android:layout_centerHorizontal="true"
+                android:textColor="#ff008eff"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Actual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_actual"
+                android:layout_below="@+id/textView_recurringvalue"
+                android:layout_alignLeft="@+id/textView_recurringvalue"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Diff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_diff"
+                android:layout_below="@+id/textView_recurringvalue"
+                android:layout_alignLeft="@+id/textView_recurringvalue"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+        </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
@@ -24,14 +72,16 @@
                 android:textSize="20dp"
                 android:id="@+id/textView_recurring_label"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:onClick="onClick"
+                android:clickable="true" />
 
             <TextView
                 android:text="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_recurring_actual"
+                android:id="@+id/textView_recurring_budget"
                 android:layout_centerHorizontal="true"
                 android:textColor="#ff008eff" />
 
@@ -40,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_recurring_budget"
+                android:id="@+id/textView_recurring_actual"
                 android:layout_below="@+id/textView_recurringvalue"
                 android:layout_alignLeft="@+id/textView_recurringvalue"
                 android:layout_centerHorizontal="true" />
@@ -67,14 +117,16 @@
                 android:textSize="20dp"
                 android:id="@+id/textView_daytoday_label"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:onClick="onClick"
+                android:clickable="true" />
 
             <TextView
                 android:text="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_daytoday_actual"
+                android:id="@+id/textView_daytoday_budget"
                 android:layout_centerHorizontal="true"
                 android:textColor="#ff008eff" />
 
@@ -83,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_daytoday_budget"
+                android:id="@+id/textView_daytoday_actual"
                 android:layout_below="@+id/textView_recurringvalue"
                 android:layout_alignLeft="@+id/textView_recurringvalue"
                 android:layout_centerHorizontal="true" />
@@ -110,14 +162,16 @@
                 android:textSize="20dp"
                 android:id="@+id/textView_income_label"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:onClick="onClick"
+                android:clickable="true" />
 
             <TextView
                 android:text="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_income_actual"
+                android:id="@+id/textView_income_budget"
                 android:layout_centerHorizontal="true"
                 android:textColor="#ff008eff" />
 
@@ -126,7 +180,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_income_budget"
+                android:id="@+id/textView_income_actual"
                 android:layout_below="@+id/textView_recurringvalue"
                 android:layout_alignLeft="@+id/textView_recurringvalue"
                 android:layout_centerHorizontal="true" />
@@ -153,14 +207,16 @@
                 android:textSize="20dp"
                 android:id="@+id/textView_transfer_label"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:onClick="onClick"
+                android:clickable="true" />
 
             <TextView
                 android:text="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_transfer_actual"
+                android:id="@+id/textView_transfer_budget"
                 android:layout_centerHorizontal="true"
                 android:textColor="#ff008eff" />
 
@@ -169,7 +225,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_transfer_budget"
+                android:id="@+id/textView_transfer_actual"
                 android:layout_below="@+id/textView_recurringvalue"
                 android:layout_alignLeft="@+id/textView_recurringvalue"
                 android:layout_centerHorizontal="true" />
@@ -196,14 +252,16 @@
                 android:textSize="20dp"
                 android:id="@+id/textView_total_label"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:onClick="onClick"
+                android:clickable="true" />
 
             <TextView
                 android:text="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_total_actual"
+                android:id="@+id/textView_total_budget"
                 android:layout_centerHorizontal="true"
                 android:textColor="#ff008eff" />
 
@@ -212,11 +270,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:id="@+id/textView_total_budget"
+                android:id="@+id/textView_total_actual"
                 android:layout_below="@+id/textView_recurringvalue"
                 android:layout_alignLeft="@+id/textView_recurringvalue"
-                android:layout_centerHorizontal="true"
-                android:textColor="#ff00fa00" />
+                android:layout_centerHorizontal="true"/>
 
             <TextView
                 android:text="0"
@@ -228,7 +285,187 @@
                 android:layout_alignLeft="@+id/textView_recurringvalue"
                 android:layout_centerHorizontal="true" />
         </TableRow>
+    </TableLayout>
 
+    <TableLayout
+        android:id="@+id/tablelayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tablelayout1"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_space"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:text="Recurring"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_type1"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Budget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_budget"
+                android:layout_centerHorizontal="true"
+                android:textColor="#ff008eff"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_budget_value"
+                android:layout_centerHorizontal="true"
+                android:textColor="#ff008eff" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_type2"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Actual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_actual"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_actual_value"
+                android:layout_centerHorizontal="true"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_type3"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Diff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_diff"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_diff_value"
+                android:layout_centerHorizontal="true"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_type4"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Budget not spent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_remaining"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_remaining_value"
+                android:layout_centerHorizontal="true" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <TextView
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_type5"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="Spent not budget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_notbudget"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_specific_notbudget_value"
+                android:layout_centerHorizontal="true" />
+        </TableRow>
     </TableLayout>
 
 

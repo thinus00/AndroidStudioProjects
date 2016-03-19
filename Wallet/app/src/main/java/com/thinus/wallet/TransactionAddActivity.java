@@ -201,7 +201,7 @@ public class TransactionAddActivity extends ActionBarActivity {
                                         public void onClick(DialogInterface dialog, int which) {
                                             //Yes button clicked, do something
                                             if (TransactionListActivity.deleteTransactionByID(modeid)) {
-                                                Toast.makeText(getApplicationContext(), "Deleted", Toast.LENGTH_LONG).show();
+                                                //Toast.makeText(getApplicationContext(), "Deleted", Toast.LENGTH_LONG).show();
                                             }
                                             finish();
                                         }
