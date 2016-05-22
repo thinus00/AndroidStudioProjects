@@ -114,6 +114,50 @@
             android:layout_height="fill_parent">
 
             <TextView
+                android:text="Recurring Dtd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_recurringdaytoday_label"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:clickable="true" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_recurringdaytoday_budget"
+                android:layout_centerHorizontal="true"
+                android:textColor="#ff008eff" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_recurringdaytoday_actual"
+                android:layout_below="@+id/textView_recurringvalue"
+                android:layout_alignLeft="@+id/textView_recurringvalue"
+                android:layout_centerHorizontal="true" />
+
+            <TextView
+                android:text="0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:id="@+id/textView_recurringdaytoday_diff"
+                android:layout_below="@+id/textView_recurringvalue"
+                android:layout_alignLeft="@+id/textView_recurringvalue"
+                android:layout_centerHorizontal="true" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
                 android:text="Day-to-Day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

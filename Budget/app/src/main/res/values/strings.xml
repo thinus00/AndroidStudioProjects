@@ -9,6 +9,7 @@
     <string name="add_transaction">Add Transaction</string>
     <string name="add_category">Add Category</string>
     <string name="show_unlinked">Show Unlinked</string>
+    <string name="show_duplicates">Show Duplicates</string>
     <string name="show_all">Show All</string>
 
     <string name="show_only_actuals">Show Only Actuals</string>
@@ -19,4 +20,6 @@
 
     <string name="scan_csv">Scan CSV</string>
     <string name="scan_sms">Scan SMS\'s</string>
+
+    <string name="sort_ammount">Sort Ammount</string>
 </resources>

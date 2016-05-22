@@ -148,7 +148,10 @@ public class Database {
      */
 
     public static void LoadTransactionsFromDB() {
-        Cursor resultSet = db.rawQuery("SELECT * FROM [transaction] ORDER BY Date DESC",null);
+        LoadTransactionsFromDB("Date DESC");
+    }
+    public static void LoadTransactionsFromDB(String sort) {
+        Cursor resultSet = db.rawQuery("SELECT * FROM [transaction] ORDER BY " + sort, null);
         resultSet.moveToFirst();
 
         while (!resultSet.isAfterLast()) {

@@ -10,6 +10,7 @@ public class Category {
 
     public enum CategoryType {
         Recurring,
+        RecurringDayToDay,
         DayToDay,
         Income,
         Transfer
@@ -26,6 +27,7 @@ public class Category {
         }
         array_spinner.clear();
         array_spinner.add("Recurring");
+        array_spinner.add("Recurring Day-to-Day");
         array_spinner.add("Day-to-Day");
         array_spinner.add("Income");
         array_spinner.add("Transfer");

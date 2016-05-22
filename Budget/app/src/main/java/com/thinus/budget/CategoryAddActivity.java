@@ -72,6 +72,9 @@ public class CategoryAddActivity extends ActionBarActivity {
                             case "Recurring":
                                 ct = Category.CategoryType.Recurring;
                                 break;
+                            case "Recurring Day-to-Day":
+                                ct = Category.CategoryType.RecurringDayToDay;
+                                break;
                             case "Day-to-Day":
                                 ct = Category.CategoryType.DayToDay;
                                 break;

@@ -1,40 +1,41 @@
 package com.thinus.budget;
 
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.FragmentTransaction;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
+import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +55,6 @@ public class MainActivity extends ActionBarActivity {
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     public static SimpleDateFormat dateFormatCSV = new SimpleDateFormat("yyyyMMdd");
 
-
     public static int monthstartonday = 23;
     public static int day = 0;
     public static int month = 0;
@@ -63,15 +63,72 @@ public class MainActivity extends ActionBarActivity {
     public static Date startDate;
     public static Date endDate;
 
-
-
+    private String search_Text = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+                try {
+                    String fileName2;
+                    fileName2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath() + "/sms_exception3.txt";
+                    File myFile2 = new File(fileName2);
+                    if (!myFile2.exists()) myFile2.createNewFile();
+                    FileWriter fw = new FileWriter(myFile2, true);
+                    PrintWriter pw = new PrintWriter(fw);
+                    paramThrowable.printStackTrace(pw);
+                    pw.close();
+
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            Looper.prepare();
+                            Toast.makeText(getApplicationContext(), "Application crashed", Toast.LENGTH_LONG).show();
+                            Looper.loop();
+                        }
+                    }.start();
+
+                    try {
+                        Thread.sleep(4000); // Let the Toast display before app will get shutdown
+                    } catch (InterruptedException e) {
+                        // Ignored.
+                    }
+                    System.exit(1);
+                } catch (IOException ioe) {
+                    //Toast.makeText(TransactionListActivity.this.getApplicationContext(), ioe.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
         setContentView(R.layout.activity_main);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
+
+        Database.LoadDatabase(openOrCreateDatabase("WalletDB", Context.MODE_PRIVATE, null));
+
+        transactionItems = new ArrayList<Transaction>();
+        categoryItems = new ArrayList<Category>();
+        try {
+            Database.LoadCategoriesFromDB();
+            Database.LoadTransactionsFromDB();
+            Database.LoadSettingsFromDB();
+        } catch (Exception ex) {
+            Toast.makeText(MainActivity.this.getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        Date date = new Date();
+        DateFormat dateFormat0 = new SimpleDateFormat("dd");
+        day = Integer.parseInt(dateFormat0.format(date));
+        dateFormat0 = new SimpleDateFormat("MM");
+        month = Integer.parseInt(dateFormat0.format(date));
+        dateFormat0 = new SimpleDateFormat("yyyy");
+        year = Integer.parseInt(dateFormat0.format(date));
+        refreshDates();
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -109,32 +166,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-
         mViewPager.setCurrentItem(1);
-
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        Database.LoadDatabase(openOrCreateDatabase("WalletDB", Context.MODE_PRIVATE, null));
-
-        transactionItems = new ArrayList<Transaction>();
-        categoryItems = new ArrayList<Category>();
-        try {
-            Database.LoadCategoriesFromDB();
-            Database.LoadTransactionsFromDB();
-        } catch (Exception ex) {
-            Toast.makeText(MainActivity.this.getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
-        }
-
-        Date date = new Date();
-        DateFormat dateFormat0 = new SimpleDateFormat("dd");
-        day = Integer.parseInt(dateFormat0.format(date));
-        dateFormat0 = new SimpleDateFormat("MM");
-        month = Integer.parseInt(dateFormat0.format(date));
-        dateFormat0 = new SimpleDateFormat("yyyy");
-        year = Integer.parseInt(dateFormat0.format(date));
-        refreshDates();
-
-        Database.LoadSettingsFromDB();
     }
 
 
@@ -162,6 +194,7 @@ public class MainActivity extends ActionBarActivity {
                 menu.findItem(R.id.show_only_budgets).setVisible(false);
                 menu.findItem(R.id.show_budgetnotspent).setVisible(false);
                 menu.findItem(R.id.show_remaining).setVisible(false);
+                menu.findItem(R.id.sort_ammount).setVisible(true);
                 break;
             case 2:
                 menu.findItem(R.id.add_transaction).setVisible(false);
@@ -173,6 +206,7 @@ public class MainActivity extends ActionBarActivity {
                 menu.findItem(R.id.show_only_budgets).setVisible(true);
                 menu.findItem(R.id.show_budgetnotspent).setVisible(true);
                 menu.findItem(R.id.show_remaining).setVisible(true);
+                menu.findItem(R.id.sort_ammount).setVisible(false);
                 break;
 
         }
@@ -206,9 +240,52 @@ public class MainActivity extends ActionBarActivity {
             refreshDates();
         }
 
+        if (id == R.id.action_search) {
+            search_Text = "";
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Search");
+
+            // Set up the input
+            final EditText input = new EditText(this);
+            // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    search_Text = input.getText().toString();
+                    TransactonFragment page = (TransactonFragment)getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 1);
+                    if (page != null) {
+                        if (page.getListAdapter() != null) {
+                            page.getListAdapter().getFilter().filter("search " + search_Text, new Filter.FilterListener() {
+                                public void onFilterComplete(int count) {
+                                    transactionFilteredCount = count;
+                                    mSectionsPagerAdapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
+
+
+            return true;
+        }
 
         if (id == R.id.action_refresh) {
             Toast.makeText(getApplicationContext(), "Refreshing list", Toast.LENGTH_LONG).show();
+            categoryItems.clear();
             transactionItems.clear();
             Database.LoadCategoriesFromDB();
             Database.LoadTransactionsFromDB();
@@ -231,6 +308,23 @@ public class MainActivity extends ActionBarActivity {
             if (page != null) {
                 if (page.getListAdapter() != null) {
                     page.getListAdapter().getFilter().filter("unlinked", new Filter.FilterListener() {
+                        public void onFilterComplete(int count) {
+                            transactionFilteredCount = count;
+                            mSectionsPagerAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+            return true;
+        }
+
+        if (id == R.id.show_duplicates) {
+            transactionItems.clear();
+            Database.LoadTransactionsFromDB("amount, date");
+            TransactonFragment page = (TransactonFragment)getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 1);
+            if (page != null) {
+                if (page.getListAdapter() != null) {
+                    page.getListAdapter().getFilter().filter("duplicates", new Filter.FilterListener() {
                         public void onFilterComplete(int count) {
                             transactionFilteredCount = count;
                             mSectionsPagerAdapter.notifyDataSetChanged();
@@ -397,6 +491,24 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
 
+        if (id == R.id.sort_ammount) {
+            transactionItems.clear();
+            Database.LoadTransactionsFromDB("amount");
+            TransactonFragment page = (TransactonFragment)getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 1);
+            if (page != null) {
+                if (page.getListAdapter() != null) {
+                    page.getListAdapter().getFilter().filter("month", new Filter.FilterListener() {
+                        public void onFilterComplete(int count) {
+                            transactionFilteredCount = count;
+                            mSectionsPagerAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+            return true;
+        }
+
+
 
         if (id == R.id.backup_database) {
             Toast.makeText(getApplicationContext(), Database.BackupDB(), Toast.LENGTH_LONG).show();
@@ -435,7 +547,7 @@ public class MainActivity extends ActionBarActivity {
                         @Override
                         public void run() {
                             int transactionItemscount = 0;
-
+                            int transactionItemsDupcount = 0;
 
                             //StringBuilder stringList = new StringBuilder();
                             ArrayList<String> stringList = new ArrayList<String>();
@@ -509,7 +621,10 @@ public class MainActivity extends ActionBarActivity {
                                                         sr0.Save();
                                                         transactionItems.add(sr0);
                                                         transactionItemscount++;
+                                                    } else {
+                                                        transactionItemsDupcount++;
                                                     }
+
                                                 }
                                             } catch (ParseException e) {
                                                 e.printStackTrace();
@@ -520,7 +635,7 @@ public class MainActivity extends ActionBarActivity {
                                 barSMSScanDialog.incrementProgressBy(1);
                             }
                             barSMSScanDialog.dismiss();
-                            final String message = "Found " + transactionItemscount + " transactions";
+                            final String message = "Found " + transactionItemscount + " transactions (" + transactionItemsDupcount + " dup)";
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 public void run() {
                                     Toast.makeText(MainActivity.this.getApplicationContext(), message, Toast.LENGTH_LONG).show();
@@ -608,7 +723,7 @@ public class MainActivity extends ActionBarActivity {
                 case 0:
                     return "Summary";
                 case 1:
-                    return "Transactions (" + transactionFilteredCount + ") - " + monthName + " " + year;
+                    return "Transactions (" + transactionFilteredCount + "/" + MainActivity.transactionFilteredUnlinkedCount + "-" + MainActivity.transactionUnlinkedCount + ") - " + monthName + " " + year;
                 case 2:
                     return "Categories";
             }
@@ -628,6 +743,10 @@ public class MainActivity extends ActionBarActivity {
                             if (pageCat.getListAdapter() != null) {
                                 pageCat.calcBugetTotals();
                                 pageCat.getListAdapter().getFilter().filter("all");
+                            }
+                            SumaryFragment pageSum = (SumaryFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 0);
+                            if (pageSum != null) {
+                                pageSum.refreshValues();
                             }
                         }
                         mSectionsPagerAdapter.notifyDataSetChanged();
@@ -662,24 +781,7 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
 
-        TransactonFragment pageTrans = (TransactonFragment)getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 1);
-        if (pageTrans != null) {
-            if (pageTrans.getListAdapter() != null) {
-                pageTrans.getListAdapter().getFilter().filter("month", new Filter.FilterListener() {
-                    public void onFilterComplete(int count) {
-                        transactionFilteredCount = count;
-                        CategoryFragment pageCat = (CategoryFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 2);
-                        if (pageCat != null) {
-                            if (pageCat.getListAdapter() != null) {
-                                pageCat.calcBugetTotals();
-                                pageCat.getListAdapter().getFilter().filter("all");
-                            }
-                        }
-                        mSectionsPagerAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-        }
+        refreshList();
     }
 
 
@@ -1091,6 +1193,8 @@ public class MainActivity extends ActionBarActivity {
     public static ArrayList<Transaction> transactionItems;
     public static ArrayList<Transaction> transactionItems_month;
     public static int transactionFilteredCount = 0;
+    public static int transactionFilteredUnlinkedCount = 0;
+    public static int transactionUnlinkedCount = 0;
 
     public static Transaction getTransactionByID(int id){
         for (Transaction t : transactionItems){

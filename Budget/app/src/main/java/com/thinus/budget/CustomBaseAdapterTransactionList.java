@@ -98,7 +98,8 @@ public class CustomBaseAdapterTransactionList extends BaseAdapter implements Fil
 
                 FilterResults results = new FilterResults();
                 ArrayList<Transaction> FilteredArrayNames = new ArrayList<Transaction>();
-
+                MainActivity.transactionFilteredUnlinkedCount = 0;
+                MainActivity.transactionUnlinkedCount = 0;
                 // perform your search here using the searchConstraint String.
 
                 constraint = constraint.toString().toLowerCase();
@@ -106,9 +107,35 @@ public class CustomBaseAdapterTransactionList extends BaseAdapter implements Fil
                     Transaction dataNames = MainActivity.transactionItems.get(i);
                     if ((constraint.equals("all")) ||
                         ((constraint.equals("unlinked")) && (dataNames.getCategoryId() == 0)) ||
-                        ((constraint.equals("month")) && (((dataNames.getDate().after(MainActivity.startDate)) && (dataNames.getDate().before(MainActivity.endDate))) || (dataNames.getDate().equals(MainActivity.startDate)) || (dataNames.getDate().equals(MainActivity.endDate)))) ||
+                        ((constraint.toString().startsWith("search")) && (
+                                (dataNames.getReference().toLowerCase().contains(constraint.toString().substring(7).toLowerCase())) ||
+                                (dataNames.getDescription().toLowerCase().contains(constraint.toString().substring(7).toLowerCase())) ||
+                                (String.valueOf(dataNames.getAmount()).toLowerCase().contains(constraint.toString().substring(7).toLowerCase())) ||
+                                (dataNames.getCategoryName().toLowerCase().contains(constraint.toString().substring(7).toLowerCase())))) ||
+                        ((constraint.equals("month") || constraint.equals("duplicates")) && (((dataNames.getDate().after(MainActivity.startDate)) && (dataNames.getDate().before(MainActivity.endDate))) || (dataNames.getDate().equals(MainActivity.startDate)) || (dataNames.getDate().equals(MainActivity.endDate)))) ||
                         ((constraint.equals("monthcategory")) && (dataNames.getCategoryId() == MainActivity.catFilterID) && (((dataNames.getDate().after(MainActivity.startDate)) && (dataNames.getDate().before(MainActivity.endDate))) || (dataNames.getDate().equals(MainActivity.startDate)) || (dataNames.getDate().equals(MainActivity.endDate))))){
+                            if (dataNames.getCategoryId() == 0)
+                                MainActivity.transactionFilteredUnlinkedCount++;
                             FilteredArrayNames.add(dataNames);
+                    }
+                    if (dataNames.getCategoryId() == 0)
+                        MainActivity.transactionUnlinkedCount++;
+                }
+                if (constraint.equals("duplicates")) {
+                    for (int ii = 0; ii < FilteredArrayNames.size(); ii++) {
+                        boolean foundDup = false;
+                        Transaction dataNames2 = FilteredArrayNames.get(ii);
+                        for (int iii = 0; iii < FilteredArrayNames.size(); iii++) {
+                            Transaction dataNames3 = FilteredArrayNames.get(iii);
+                            if ((dataNames2.getId() != dataNames3.getId()) && (dataNames2.getAmount() == dataNames3.getAmount())) {
+                                foundDup = true;
+                                break;
+                            }
+                        }
+                        if (!foundDup) {
+                            FilteredArrayNames.remove(dataNames2);
+                            ii--;
+                        }
                     }
                 }
                 if (!constraint.equals("monthcategory")) {

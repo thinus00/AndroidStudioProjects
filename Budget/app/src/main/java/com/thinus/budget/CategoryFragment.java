@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Filter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * Created by thinus on 2016/03/19.
@@ -70,29 +71,30 @@ public class CategoryFragment extends Fragment {
     }
 
     public static void calcBugetTotals() {
-        for (int i = 0; i < MainActivity.categoryItems.size(); i++)
-        {
-            Category c = MainActivity.categoryItems.get(i);
+        if ((MainActivity.categoryItems != null) && (MainActivity.transactionItems_month != null)) {
+            for (int i = 0; i < MainActivity.categoryItems.size(); i++) {
+                Category c = MainActivity.categoryItems.get(i);
 
-            double budgetTotal = 0;
-            for (int j = 0; j < MainActivity.transactionItems_month.size(); j++) {
-                Transaction t = MainActivity.transactionItems_month.get(j);
-                if (t.getCategoryId() == c.getId()) {
-                    if ((c.getCatType() == Category.CategoryType.DayToDay || c.getCatType() == Category.CategoryType.Recurring) && t.getIncomeExpense() == 2)
-                        budgetTotal = budgetTotal + t.getAmount();
-                    if ((c.getCatType() == Category.CategoryType.DayToDay || c.getCatType() == Category.CategoryType.Recurring) && t.getIncomeExpense() == 1)
-                        budgetTotal = budgetTotal - t.getAmount();
-                    if ((c.getCatType() == Category.CategoryType.Income) && t.getIncomeExpense() == 2)
-                        budgetTotal = budgetTotal - t.getAmount();
-                    if ((c.getCatType() == Category.CategoryType.Income) && t.getIncomeExpense() == 1)
-                        budgetTotal = budgetTotal + t.getAmount();
-                    if ((c.getCatType() == Category.CategoryType.Transfer) && t.getIncomeExpense() == 2)
-                        budgetTotal = budgetTotal + t.getAmount();
-                    if ((c.getCatType() == Category.CategoryType.Transfer) && t.getIncomeExpense() == 1)
-                        budgetTotal = budgetTotal - t.getAmount();
+                double budgetTotal = 0;
+                for (int j = 0; j < MainActivity.transactionItems_month.size(); j++) {
+                    Transaction t = MainActivity.transactionItems_month.get(j);
+                    if (t.getCategoryId() == c.getId()) {
+                        if ((c.getCatType() == Category.CategoryType.DayToDay || c.getCatType() == Category.CategoryType.RecurringDayToDay || c.getCatType() == Category.CategoryType.Recurring) && t.getIncomeExpense() == 2)
+                            budgetTotal = budgetTotal + t.getAmount();
+                        if ((c.getCatType() == Category.CategoryType.DayToDay || c.getCatType() == Category.CategoryType.RecurringDayToDay || c.getCatType() == Category.CategoryType.Recurring) && t.getIncomeExpense() == 1)
+                            budgetTotal = budgetTotal - t.getAmount();
+                        if ((c.getCatType() == Category.CategoryType.Income) && t.getIncomeExpense() == 2)
+                            budgetTotal = budgetTotal - t.getAmount();
+                        if ((c.getCatType() == Category.CategoryType.Income) && t.getIncomeExpense() == 1)
+                            budgetTotal = budgetTotal + t.getAmount();
+                        if ((c.getCatType() == Category.CategoryType.Transfer) && t.getIncomeExpense() == 2)
+                            budgetTotal = budgetTotal + t.getAmount();
+                        if ((c.getCatType() == Category.CategoryType.Transfer) && t.getIncomeExpense() == 1)
+                            budgetTotal = budgetTotal - t.getAmount();
+                    }
                 }
+                c.setBudgetTotal(budgetTotal);
             }
-            c.setBudgetTotal(budgetTotal);
         }
     }
 }

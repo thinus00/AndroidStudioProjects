@@ -13,26 +13,31 @@ import android.widget.TextView;
 public class SumaryFragment extends Fragment {
 
     double recurring = 0;
+    double recurringdaytoday = 0;
     double daytoday = 0;
     double income = 0;
     double transfer = 0;
     double total = 0;
     double recurringBudget = 0;
+    double recurringdaytodayBudget = 0;
     double daytodayBudget = 0;
     double incomeBudget = 0;
     double transferBudget = 0;
     double totalBudget = 0;
     double recurringDiff = 0;
+    double recurringdaytodayDiff = 0;
     double daytodayDiff = 0;
     double incomeDiff = 0;
     double transferDiff = 0;
     double totalDiff = 0;
     double recurringRemain = 0;
+    double recurringdaytodayRemain = 0;
     double daytodayRemain = 0;
     double incomeRemain = 0;
     double transferRemain = 0;
     double totalRemain = 0;
     double recurringNotBudget = 0;
+    double recurringdaytodayNotBudget = 0;
     double daytodayNotBudget = 0;
     double incomeNotBudget = 0;
     double transferNotBudget = 0;
@@ -47,34 +52,47 @@ public class SumaryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        rootView = inflater.inflate(R.layout.fragment_summary, container, false);
+        refreshValues();
+        return rootView;
+    }
+
+    public void refreshValues() {
         recurring = 0;
+        recurringdaytoday = 0;
         daytoday = 0;
         income = 0;
         transfer = 0;
         total = 0;
         recurringBudget = 0;
+        recurringdaytodayBudget = 0;
         daytodayBudget = 0;
         incomeBudget = 0;
         transferBudget = 0;
         totalBudget = 0;
         recurringDiff = 0;
+        recurringdaytodayDiff = 0;
         daytodayDiff = 0;
         incomeDiff = 0;
         transferDiff = 0;
         totalDiff = 0;
         recurringRemain = 0;
+        recurringdaytodayRemain = 0;
         daytodayRemain = 0;
         incomeRemain = 0;
         transferRemain = 0;
         totalRemain = 0;
         recurringNotBudget = 0;
+        recurringdaytodayNotBudget = 0;
         daytodayNotBudget = 0;
         incomeNotBudget = 0;
         transferNotBudget = 0;
         totalNotBudget = 0;
 
+        if (rootView == null)
+            return;
+
         CategoryFragment.calcBugetTotals();
-        rootView = inflater.inflate(R.layout.fragment_summary, container, false);
 
         for (Category c : MainActivity.categoryItems) {
             if (c.getCatType() == Category.CategoryType.Recurring) {
@@ -87,6 +105,18 @@ public class SumaryFragment extends Fragment {
                     }
                 } else {
                     recurringNotBudget = recurringNotBudget + c.getBudgetTotal();
+                }
+            }
+            if (c.getCatType() == Category.CategoryType.RecurringDayToDay) {
+                recurringdaytodayBudget = recurringdaytodayBudget + c.getBudget();
+                recurringdaytoday = recurringdaytoday + c.getBudgetTotal();
+                if (c.getBudget() > 0) {
+                    double tmp = c.getBudget() - c.getBudgetTotal();
+                    if (tmp > 0) {
+                        recurringdaytodayRemain = recurringdaytodayRemain + (tmp);
+                    }
+                } else {
+                    recurringdaytodayNotBudget = recurringdaytodayNotBudget + c.getBudgetTotal();
                 }
             }
             if (c.getCatType() == Category.CategoryType.DayToDay) {
@@ -128,15 +158,16 @@ public class SumaryFragment extends Fragment {
 
         }
 
-        total = income - recurring - daytoday;
-        totalBudget = incomeBudget - recurringBudget - daytodayBudget;
+        total = income - recurring - recurringdaytoday - daytoday;
+        totalBudget = incomeBudget - recurringBudget - recurringdaytodayBudget - daytodayBudget;
         recurringDiff = recurringBudget - recurring;
+        recurringdaytodayDiff = recurringdaytodayBudget - recurringdaytoday;
         daytodayDiff = daytodayBudget - daytoday;
         incomeDiff = income - incomeBudget;
         transferDiff = transferBudget - transfer;
         totalDiff = total - totalBudget;
-        totalRemain = recurringRemain + daytodayRemain + incomeRemain;
-        totalNotBudget = recurringNotBudget + daytodayNotBudget + incomeNotBudget;
+        totalRemain = recurringRemain + recurringdaytodayRemain + daytodayRemain + incomeRemain;
+        totalNotBudget = recurringNotBudget + recurringdaytodayNotBudget + daytodayNotBudget + incomeNotBudget;
 
         TextView textView_recurring_actual = (TextView) rootView.findViewById(R.id.textView_recurring_actual);
         textView_recurring_actual.setText(String.format("%.2f", recurring));
@@ -148,6 +179,17 @@ public class SumaryFragment extends Fragment {
             textView_recurring_diff.setTextColor(0xffff0000);
         else
             textView_recurring_diff.setTextColor(0xff00fa00);
+
+        TextView textView_recurringdaytoday_actual = (TextView) rootView.findViewById(R.id.textView_recurringdaytoday_actual);
+        textView_recurringdaytoday_actual.setText(String.format("%.2f", recurringdaytoday));
+        TextView textView_recurringdaytoday_budget = (TextView) rootView.findViewById(R.id.textView_recurringdaytoday_budget);
+        textView_recurringdaytoday_budget.setText(String.format("%.2f", recurringdaytodayBudget));
+        TextView textView_recurringdaytoday_diff = (TextView) rootView.findViewById(R.id.textView_recurringdaytoday_diff);
+        textView_recurringdaytoday_diff.setText(String.format("%.2f", recurringdaytodayDiff));
+        if ((recurringdaytodayDiff) < 0)
+            textView_recurringdaytoday_diff.setTextColor(0xffff0000);
+        else
+            textView_recurringdaytoday_diff.setTextColor(0xff00fa00);
 
         TextView textView_daytoday_actual = (TextView) rootView.findViewById(R.id.textView_daytoday_actual);
         textView_daytoday_actual.setText(String.format("%.2f", daytoday));
@@ -215,6 +257,14 @@ public class SumaryFragment extends Fragment {
             }
         });
 
+        textView_temp = (TextView) rootView.findViewById(R.id.textView_recurringdaytoday_label);
+        textView_temp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                onClicky(v);
+            }
+        });
+
         textView_temp = (TextView) rootView.findViewById(R.id.textView_income_label);
         textView_temp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,7 +281,7 @@ public class SumaryFragment extends Fragment {
             }
         });
 
-        return rootView;
+        //return rootView;
     }
 
     public void onClicky(View v) {
@@ -249,6 +299,14 @@ public class SumaryFragment extends Fragment {
                 diff = recurringDiff;
                 remain = recurringRemain;
                 notBudget = recurringNotBudget;
+                break;
+            case R.id.textView_recurringdaytoday_label:
+                type = "Recurring DtD";
+                budget = recurringdaytodayBudget;
+                actual = recurringdaytoday;
+                diff = recurringdaytodayDiff;
+                remain = recurringdaytodayRemain;
+                notBudget = recurringdaytodayNotBudget;
                 break;
             case R.id.textView_daytoday_label:
                 type = "Day-to-Day";

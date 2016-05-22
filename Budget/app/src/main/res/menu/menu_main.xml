@@ -15,6 +15,12 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        android:title=""
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh_white_48dp"
         android:title=""
@@ -24,6 +30,8 @@
         android:id="@+id/add_transaction" android:title="@string/add_transaction"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/show_unlinked" android:title="@string/show_unlinked"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_duplicates" android:title="@string/show_duplicates"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/show_all" android:title="@string/show_all"
         android:orderInCategory="100" app:showAsAction="never" />
@@ -44,6 +52,9 @@
     <item android:id="@+id/scan_csv" android:title="@string/scan_csv"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/scan_sms" android:title="@string/scan_sms"
+        android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/sort_ammount" android:title="@string/sort_ammount"
         android:orderInCategory="100" app:showAsAction="never" />
 
     <item
