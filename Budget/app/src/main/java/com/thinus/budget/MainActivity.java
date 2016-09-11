@@ -106,7 +106,9 @@ public class MainActivity extends ActionBarActivity {
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
 
+        //deleteDatabase("WalletDB");
         Database.LoadDatabase(openOrCreateDatabase("WalletDB", Context.MODE_PRIVATE, null));
+        //Toast.makeText(getApplicationContext(), Database.fixDB(), Toast.LENGTH_LONG).show();
 
         transactionItems = new ArrayList<Transaction>();
         categoryItems = new ArrayList<Category>();

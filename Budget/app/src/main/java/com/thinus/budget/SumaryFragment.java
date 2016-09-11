@@ -42,6 +42,12 @@ public class SumaryFragment extends Fragment {
     double incomeNotBudget = 0;
     double transferNotBudget = 0;
     double totalNotBudget = 0;
+    double recurringOverBudget = 0;
+    double recurringdaytodayOverBudget = 0;
+    double daytodayOverBudget = 0;
+    double incomeOverBudget = 0;
+    double transferOverBudget = 0;
+    double totalOverBudget = 0;
 
     View rootView;
 
@@ -88,6 +94,12 @@ public class SumaryFragment extends Fragment {
         incomeNotBudget = 0;
         transferNotBudget = 0;
         totalNotBudget = 0;
+        recurringOverBudget = 0;
+        recurringdaytodayOverBudget = 0;
+        daytodayOverBudget = 0;
+        incomeOverBudget = 0;
+        transferOverBudget = 0;
+        totalOverBudget = 0;
 
         if (rootView == null)
             return;
@@ -102,6 +114,8 @@ public class SumaryFragment extends Fragment {
                     double tmp = c.getBudget() - c.getBudgetTotal();
                     if (tmp > 0) {
                         recurringRemain = recurringRemain + (tmp);
+                    } else {
+                        recurringOverBudget = recurringOverBudget + (-1*tmp);
                     }
                 } else {
                     recurringNotBudget = recurringNotBudget + c.getBudgetTotal();
@@ -114,6 +128,8 @@ public class SumaryFragment extends Fragment {
                     double tmp = c.getBudget() - c.getBudgetTotal();
                     if (tmp > 0) {
                         recurringdaytodayRemain = recurringdaytodayRemain + (tmp);
+                    } else {
+                        recurringdaytodayOverBudget = recurringdaytodayOverBudget + (-1*tmp);
                     }
                 } else {
                     recurringdaytodayNotBudget = recurringdaytodayNotBudget + c.getBudgetTotal();
@@ -126,6 +142,8 @@ public class SumaryFragment extends Fragment {
                     double tmp = c.getBudget() - c.getBudgetTotal();
                     if (tmp > 0) {
                         daytodayRemain = daytodayRemain + (tmp);
+                    } else {
+                        daytodayOverBudget = daytodayOverBudget + (-1*tmp);
                     }
                 } else {
                     daytodayNotBudget = daytodayNotBudget + c.getBudgetTotal();
@@ -138,6 +156,8 @@ public class SumaryFragment extends Fragment {
                     double tmp = c.getBudget() - c.getBudgetTotal();
                     if (tmp > 0) {
                         incomeRemain = incomeRemain + (tmp);
+                    } else {
+                        incomeOverBudget = incomeOverBudget + (-1*tmp);
                     }
                 } else {
                     incomeNotBudget = incomeNotBudget + c.getBudgetTotal();
@@ -150,6 +170,8 @@ public class SumaryFragment extends Fragment {
                     double tmp = c.getBudget() - c.getBudgetTotal();
                     if (tmp > 0) {
                         transferRemain = transferRemain + (tmp);
+                    } else {
+                        transferOverBudget = transferOverBudget + (-1*tmp);
                     }
                 } else {
                     transferNotBudget = transferNotBudget + c.getBudgetTotal();
@@ -168,6 +190,7 @@ public class SumaryFragment extends Fragment {
         totalDiff = total - totalBudget;
         totalRemain = recurringRemain + recurringdaytodayRemain + daytodayRemain + incomeRemain;
         totalNotBudget = recurringNotBudget + recurringdaytodayNotBudget + daytodayNotBudget + incomeNotBudget;
+        totalOverBudget = recurringOverBudget + recurringdaytodayOverBudget + daytodayOverBudget + incomeOverBudget;
 
         TextView textView_recurring_actual = (TextView) rootView.findViewById(R.id.textView_recurring_actual);
         textView_recurring_actual.setText(String.format("%.2f", recurring));
@@ -291,6 +314,7 @@ public class SumaryFragment extends Fragment {
         double diff = 0;
         double remain = 0;
         double notBudget = 0;
+        double overBudget = 0;
         switch (v.getId()) {
             case R.id.textView_recurring_label:
                 type = "Recurring";
@@ -299,6 +323,7 @@ public class SumaryFragment extends Fragment {
                 diff = recurringDiff;
                 remain = recurringRemain;
                 notBudget = recurringNotBudget;
+                overBudget = recurringOverBudget;
                 break;
             case R.id.textView_recurringdaytoday_label:
                 type = "Recurring DtD";
@@ -307,6 +332,7 @@ public class SumaryFragment extends Fragment {
                 diff = recurringdaytodayDiff;
                 remain = recurringdaytodayRemain;
                 notBudget = recurringdaytodayNotBudget;
+                overBudget = recurringdaytodayOverBudget;
                 break;
             case R.id.textView_daytoday_label:
                 type = "Day-to-Day";
@@ -315,6 +341,7 @@ public class SumaryFragment extends Fragment {
                 diff = daytodayDiff;
                 remain = daytodayRemain;
                 notBudget = daytodayNotBudget;
+                overBudget = daytodayOverBudget;
                 break;
             case R.id.textView_income_label:
                 type = "Income";
@@ -323,6 +350,7 @@ public class SumaryFragment extends Fragment {
                 diff = incomeDiff;
                 remain = incomeRemain;
                 notBudget = incomeNotBudget;
+                overBudget = incomeOverBudget;
                 break;
             case R.id.textView_transfer_label:
                 type = "Transfers";
@@ -331,6 +359,7 @@ public class SumaryFragment extends Fragment {
                 diff = transferDiff;
                 remain = transferRemain;
                 notBudget = transferNotBudget;
+                overBudget = transferOverBudget;
                 break;
             case R.id.textView_total_label:
                 type = "Total";
@@ -339,6 +368,7 @@ public class SumaryFragment extends Fragment {
                 diff = totalDiff;
                 remain = totalRemain;
                 notBudget = totalNotBudget;
+                overBudget = totalOverBudget;
                 break;
         }
 
@@ -354,5 +384,7 @@ public class SumaryFragment extends Fragment {
         remainlabel.setText(String.format("%.2f", remain));
         TextView notBudgetlabel = (TextView) rootView.findViewById(R.id.textView_specific_notbudget_value);
         notBudgetlabel.setText(String.format("%.2f", notBudget));
+        TextView overBudgetlabel = (TextView) rootView.findViewById(R.id.textView_specific_overbudget_value);
+        overBudgetlabel.setText(String.format("%.2f", overBudget));
     }
 }

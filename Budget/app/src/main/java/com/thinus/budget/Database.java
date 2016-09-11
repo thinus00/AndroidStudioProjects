@@ -6,9 +6,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -264,4 +267,37 @@ public class Database {
     public static void DeleteCategory(Category cat) {
         db.execSQL("DELETE FROM [category] WHERE id = " + cat.getId() + ";");
     }
+
+    /* */
+
+    public static String fixDB() {
+        String message = null;
+        try
+        {
+            String line = "";
+            try {
+                File sd = Environment.getExternalStorageDirectory();
+                String backupDBPath  = "/BackupFolder/dump.sql";
+
+                File myFile2 = new File(sd, backupDBPath);
+                myFile2.createNewFile();
+                FileInputStream fis = new FileInputStream(myFile2);
+                BufferedReader r = new BufferedReader(new InputStreamReader(fis));
+
+                while ((line = r.readLine()) != null) {
+                    db.execSQL(line);
+                }
+                fis.close();
+            } catch (IOException ioe) {
+                return line + ioe.toString();
+                //Toast.makeText(TransactionListActivity.this.getApplicationContext(), ioe.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+            return "DB Fixed";
+        } catch (Exception ex) {
+            message = ex.toString();
+        }
+        return message;
+    }
+
 }
