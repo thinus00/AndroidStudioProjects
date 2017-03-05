@@ -1,5 +1,6 @@
 package com.thinus.rpinotify;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -25,6 +26,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by thinus on 2016/08/23.
@@ -84,6 +89,7 @@ public class rPiNotifyService extends Service {
                 boolean WiFiConnected = false;
                 String response = "";
                 String tosend = "[p]";
+                int pingTimetoutCount = 0;
 
                 while (isRunning) {
                     try {
@@ -97,11 +103,15 @@ public class rPiNotifyService extends Service {
                         if (!connected) {
                             response = "";
                             if (wifiSSID.contains("MudNinja")) {
+                                mBuilderService.setContentText("connecting WIFI " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime())).setSmallIcon(R.drawable.abc_btn_radio_material);;
+                                mNotifyManager.notify(0, mBuilderService.build());
                                 Log.i(TAG, "Service Thread connecting WIFI");
                                 socket = new Socket();
                                 socket.connect(new InetSocketAddress(MainActivity.SERVER_IP, MainActivity.SERVERPORT), 5000);
                                 WiFiConnected = true;
                             } else {
+                                mBuilderService.setContentText("connecting Internet " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime())).setSmallIcon(R.drawable.abc_btn_radio_material);;
+                                mNotifyManager.notify(0, mBuilderService.build());
                                 Log.i(TAG, "Service Thread connecting Internet");
                                 socket = new Socket();
                                 socket.connect(new InetSocketAddress(MainActivity.SERVER_IP_INET, MainActivity.SERVERPORT), 5000);
@@ -130,6 +140,13 @@ public class rPiNotifyService extends Service {
 
                             if (!tosend.isEmpty()) {
                                 ping = true;
+                                mBuilderService.setSmallIcon(R.drawable.abc_switch_thumb_material);
+                                if (WiFiConnected)
+                                    mBuilderService.setContentText("Ping WiFi " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime()));
+                                else
+                                    mBuilderService.setContentText("Ping Inet " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime()));
+                                mNotifyManager.notify(0, mBuilderService.build());
+
                                 Log.i(TAG, "Service Thread Connected Sending Ping");
                                 PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
                                 out.println(tosend);
@@ -172,8 +189,10 @@ public class rPiNotifyService extends Service {
                             Log.i(TAG, "Service Thread Connected read (" + bytesRead + "): " + response);
 
                             if (bytesRead == -1) {
+                                connected = false;
                                 if (socket != null) {
                                     try {
+                                        Log.i(TAG, "Service Thread bytesRead == -1 closing socket...");
                                         socket.close();
                                     } catch (IOException e) {
                                         // TODO Auto-generated catch block
@@ -188,9 +207,9 @@ public class rPiNotifyService extends Service {
                                     if (response.equals("[p]")) {
                                         mBuilderService.setSmallIcon(R.drawable.abc_switch_thumb_material);
                                         if (WiFiConnected)
-                                            mBuilderService.setContentText("Online WiFi");
+                                            mBuilderService.setContentText("Online WiFi " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime()));
                                         else
-                                            mBuilderService.setContentText("Online Inet");
+                                            mBuilderService.setContentText("Online Inet " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime()));
                                           mNotifyManager.notify(0, mBuilderService.build());
 
                                     } else {
@@ -209,15 +228,26 @@ public class rPiNotifyService extends Service {
                                                 Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
                                                 notificationIntent.putExtra("NotificationMessage", notificationMessage);
                                                 notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                PendingIntent pendingNotificationIntent = PendingIntent.getActivity(getApplicationContext(),1,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+                                                PendingIntent pendingNotificationIntent = PendingIntent.getActivity(getApplicationContext(), 1, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                                                 mBuilderEvent.setContentIntent(pendingNotificationIntent);
                                                 mBuilderEvent.setContentText("Open - " + dateStr);
                                                 Notification notif = mBuilderEvent.build();
                                                 notif.flags |= Notification.FLAG_AUTO_CANCEL;
                                                 mNotifyManager.notify(1, notif);
+
+                                                Intent AlertIntent = new Intent(getApplicationContext(), AlarmActivity.class);
+                                                AlertIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                                AlertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                AlertIntent.putExtra("Start", true);
+                                                startActivity(AlertIntent);
                                             }
                                             else {
                                                 mNotifyManager.cancel(1);
+                                                Intent AlertIntent = new Intent(getApplicationContext(), AlarmActivity.class);
+                                                AlertIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                                AlertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                AlertIntent.putExtra("Start", false);
+                                                startActivity(AlertIntent);
                                             }
 
                                         }
@@ -247,8 +277,27 @@ public class rPiNotifyService extends Service {
                                 }
                                 else {
                                     if (ping) {
+                                        Log.i(TAG, "Service Thread ping timeout");
+                                        pingTimetoutCount++;
                                         mBuilderService.setContentText("Timeout").setSmallIcon(R.drawable.abc_btn_radio_material);;
                                         mNotifyManager.notify(0, mBuilderService.build());
+                                        if (pingTimetoutCount > 3) {
+                                            connected = false;
+                                            if (socket != null) {
+                                                try {
+                                                    Log.i(TAG, "Service Thread bytesRead == -1 closing socket...");
+                                                    socket.close();
+                                                } catch (IOException e) {
+                                                    // TODO Auto-generated catch block
+                                                    e.printStackTrace();
+                                                    Log.i(TAG, "Service Thread Close IOException" + e.toString());
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Log.i(TAG, "Service Thread event timeout");
                                     }
                                 }
                             }
@@ -256,7 +305,7 @@ public class rPiNotifyService extends Service {
                         else {
                             connected = false;
                             //abc_btn_radio_material
-                            mBuilderService.setContentText("Offline").setSmallIcon(R.drawable.abc_btn_radio_material);;
+                            mBuilderService.setContentText("Offline " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime())).setSmallIcon(R.drawable.abc_btn_radio_material);;
                             mNotifyManager.notify(0, mBuilderService.build());
                         }
 
@@ -270,7 +319,7 @@ public class rPiNotifyService extends Service {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                         Log.i(TAG, "Service Thread IOException" + e.toString());
-                        mBuilderService.setContentText("Offline").setSmallIcon(R.drawable.abc_btn_radio_material);;
+                        mBuilderService.setContentText("Offline IOException " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime())).setSmallIcon(R.drawable.abc_btn_radio_material);;
                         mNotifyManager.notify(0, mBuilderService.build());
                         try {
                             Thread.sleep(10000);
@@ -280,13 +329,19 @@ public class rPiNotifyService extends Service {
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.i(TAG, "Service Thread Exception" + e.toString());
-                        mBuilderService.setContentText("Exception").setSmallIcon(R.drawable.abc_btn_radio_material);;
+                        mBuilderService.setContentText("Exception " + DateFormat.getTimeInstance().format(Calendar.getInstance().getTime())).setSmallIcon(R.drawable.abc_btn_radio_material);;
                         mNotifyManager.notify(0, mBuilderService.build());
                     }
                 }
 
                 if(!isRunning){
+                    mBuilderService.setContentText("STOPPED !isRunning").setSmallIcon(R.drawable.abc_btn_radio_material);;
+                    mNotifyManager.notify(99, mBuilderService.build());
                     Log.i(TAG, "Service Thread stopped");
+                }
+                else {
+                    mBuilderService.setContentText("STOPPED isRunning").setSmallIcon(R.drawable.abc_btn_radio_material);;
+                    mNotifyManager.notify(99, mBuilderService.build());
                 }
 
                 if (socket != null) {

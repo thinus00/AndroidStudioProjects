@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">PodcastFTPBackup</string>
+    <string name="service_name">PodcastFTPCopy Service</string>
+</resources>

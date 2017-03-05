@@ -59,7 +59,9 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter implements Filter
         holder.pBar.setMax(100);
         double budgetTotal = c.getBudgetTotal();
 
-        budgetTotal = Double.valueOf(String.format("%.2f", budgetTotal));
+//        if (budgetTotal != 0.0) {
+//            budgetTotal = Double.valueOf(String.format("%.2f", budgetTotal));
+//        }
         holder.pBar.setProgress((int)Math.floor((budgetTotal/(c.getBudget()))*100));
         if ((c.getBudget() == 0 && budgetTotal == 0) || (c.getCatType() == Category.CategoryType.Transfer)) {
         // keep color black

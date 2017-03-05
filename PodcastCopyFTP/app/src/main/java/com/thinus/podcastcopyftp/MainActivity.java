@@ -1,7 +1,12 @@
 package com.thinus.podcastcopyftp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.AsyncTask;
@@ -12,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -44,6 +50,7 @@ public class MainActivity extends ActionBarActivity {
                     }
                 }
         );
+
     }
 
 
@@ -106,7 +113,8 @@ public class MainActivity extends ActionBarActivity {
 
                 //local files
                 File extStorageDirectory = Environment.getExternalStorageDirectory();
-                String path = extStorageDirectory.toString()+"/Android/data/de.danoeh.antennapod/files/media/";
+                //String path = extStorageDirectory.toString()+"/Android/data/de.danoeh.antennapod/files/media/";
+                String path = extStorageDirectory.toString()+"/Android/data/com.bambuna.podcastaddict/files/podcast";
                 publishProgress("Checking " + path);
 
                 addLocalFiles(path, "", fileList);

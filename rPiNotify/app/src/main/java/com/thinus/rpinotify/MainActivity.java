@@ -1,5 +1,6 @@
 package com.thinus.rpinotify;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -76,7 +77,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void stopBuzz(View view) {
+        stopBuzzer(this);
+    }
 
+    public static void stopBuzzer(final Context context) {
         Thread thread = new Thread(new Runnable()
         {
             @Override
@@ -90,7 +94,7 @@ public class MainActivity extends ActionBarActivity {
                     out.println("0\n");
                     socket.close();
                 } catch (Exception e) {
-                    showToast(e.getMessage());
+                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
