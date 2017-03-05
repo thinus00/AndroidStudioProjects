@@ -11,11 +11,13 @@ import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 public class MyService extends Service {
     private NotificationManager mNM;
+    private NotificationCompat.Builder mBuilder;
     private doUploadAsync doSync;
 
     @Override
@@ -25,6 +27,7 @@ public class MyService extends Service {
         MainActivity.LogMessage("PodcastFTPBackup MyService onCreate");
         Log.v("MyService", "onCreate");
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(this);
         showNotification();
         //super.onCreate();
     }
@@ -66,11 +69,12 @@ public class MyService extends Service {
         String wifiSSID = wifiInfo.getSSID();
         if (wifiSSID.contains("MudNinja")) {
             MainActivity.LogMessage("PodcastFTPBackup MyService onStartCommand doUploadAsync");
-            doSync = new doUploadAsync();
+            doSync = new doUploadAsync(mNM,mBuilder);
             doSync.stop = 0;
             doSync.execute();
         } else {
             MainActivity.LogMessage("PodcastFTPBackup MyService onStartCommand not on MudNinja");
+            mNM.notify(0, mBuilder.setContentText("MyService onStartCommand not on MudNinja").setContentTitle("PodcastFTPBackup").setSmallIcon(R.drawable.abc_btn_check_to_on_mtrl_000).build());
         }
         MainActivity.LogMessage("PodcastFTPBackup MyService onStartCommand done");
         return Service.START_NOT_STICKY;

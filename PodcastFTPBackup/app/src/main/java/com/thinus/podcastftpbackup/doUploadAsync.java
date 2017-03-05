@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,18 +36,24 @@ public class doUploadAsync extends AsyncTask {
     public String ServerIP;
     public int stop = -1;
     private Exception exception;
-    NotificationManager notificationManager;
+    private NotificationManager mNM;
+    private NotificationCompat.Builder mBuilder;
 
-    doUploadAsync() {
+    doUploadAsync(NotificationManager nm, NotificationCompat.Builder mb) {
+        mNM = nm;
+        mBuilder = mb;
         ServerIP = "192.168.1.106";
     }
 
     @Override
     protected Object doInBackground(Object[] params) {
+        String fileNamesCopied = "";
         try {
             publishProgress("*doInBackground");
             List<FileRecord> fileList = new ArrayList<FileRecord>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            mNM.notify(0, mBuilder.setContentText("Start doUpload").setContentTitle("PodcastFTPBackup").setSmallIcon(R.drawable.abc_btn_check_to_on_mtrl_000).build());
 
             //local files
             File extStorageDirectory = Environment.getExternalStorageDirectory();
@@ -138,7 +145,7 @@ public class doUploadAsync extends AsyncTask {
                                     ftpClient.storeFile(fr.FileName, buffIn);
                                     buffIn.close();
                                     publishProgress("*DONE COPYING File " + fr.FileName);
-
+                                    fileNamesCopied = fileNamesCopied.concat(fr.FileName + "; ");
                                 }
                                 publishProgress("Changing Working Dir back to ..");
                                 if (ftpClient.changeWorkingDirectory("..")) {
@@ -158,8 +165,12 @@ public class doUploadAsync extends AsyncTask {
 
                     publishProgress("Logout....");
                     ftpClient.logout();
+                    if (fileNamesCopied == "")
+                        fileNamesCopied = "None";
+                    mNM.notify(0, mBuilder.setContentText(fileNamesCopied).setContentTitle("PodcastFTPBackup").setSmallIcon(R.drawable.abc_btn_check_to_on_mtrl_000).build());
                 } else {
                     publishProgress("...Could not login");
+                    mNM.notify(0, mBuilder.setContentText("Could not login to FTP").setContentTitle("PodcastFTPBackup").setSmallIcon(R.drawable.abc_btn_check_to_on_mtrl_000).build());
                 }
                 publishProgress("Disconnect...");
                 ftpClient.disconnect();
@@ -167,6 +178,7 @@ public class doUploadAsync extends AsyncTask {
                 publishProgress("Disconnected...DONE", "scroll");
             } else {
                 publishProgress("...Could not connect");
+                mNM.notify(0, mBuilder.setContentText("Could not connect to FTP").setContentTitle("PodcastFTPBackup").setSmallIcon(R.drawable.abc_btn_check_to_on_mtrl_000).build());
 
             }
         } catch (Exception e) {

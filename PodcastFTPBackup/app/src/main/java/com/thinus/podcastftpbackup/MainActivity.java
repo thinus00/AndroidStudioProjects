@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -24,20 +25,24 @@ import java.util.Date;
 
 public class MainActivity extends ActionBarActivity {
 
+    private NotificationManager notificationManager;
+    private NotificationCompat.Builder mBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Intent intent = new Intent( this, MyService.class );
         //this.startService(intent);
-
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(this);
         LogMessage("MainActivity onCreate");
     }
 
     public void onbtnTestClick(View v) {
         LogMessage("MainActivity onbtnTestClick");
         Intent service = new Intent(this, MyService.class);
-
+        notificationManager.notify(0, mBuilder.setContentText("Text").setContentTitle("Title").setSmallIcon(R.drawable.abc_btn_check_to_on_mtrl_000).build());
         this.startService(service);
     }
 
