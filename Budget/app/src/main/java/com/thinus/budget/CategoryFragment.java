@@ -11,6 +11,8 @@ import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 /**
  * Created by thinus on 2016/03/19.
  */
@@ -36,9 +38,9 @@ public class CategoryFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> a, View v, int position, long id) {
                 Object o = lv1.getItemAtPosition(position);
-                Category fullObject = (Category)o;
+                Category fullObject = (Category) o;
                 MainActivity.catFilterID = fullObject.getId();
-                TransactonFragment page = (TransactonFragment)getActivity().getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 1);
+                TransactonFragment page = (TransactonFragment) getActivity().getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.container + ":" + 1);
                 if (page != null) {
                     if (page.getListAdapter() != null) {
                         page.getListAdapter().getFilter().filter("monthCategory", new Filter.FilterListener() {
@@ -66,6 +68,7 @@ public class CategoryFragment extends Fragment {
         });
 
         calcBugetTotals();
+        //calcSavedTotals();
 
         return rootView;
     }
@@ -94,6 +97,34 @@ public class CategoryFragment extends Fragment {
                     }
                 }
                 c.setBudgetTotal(budgetTotal);
+            }
+        }
+        //calcSavedTotals();
+    }
+
+    public static void calcSavedTotals() {
+        if ((MainActivity.categoryItems != null) && (MainActivity.transactionItems != null)) {
+            for (int i = 0; i < MainActivity.categoryItems.size(); i++) {
+                Category c = MainActivity.categoryItems.get(i);
+                if (c.getName().startsWith("Save-")) {
+                    double savedTotal = 0;
+                    for (int j = 0; j < MainActivity.transactionItems.size(); j++) {
+                        Transaction t = MainActivity.transactionItems.get(j);
+                        if ((t != null ) && (t.getDeleted() == 0)) {
+
+
+                            for (String smsDesc : c.getSMSDescription()) {
+                                if (t.getDescription().toLowerCase().contains(smsDesc.toLowerCase())) {
+                                    if (t.getIncomeExpense() == 1)
+                                        savedTotal = savedTotal - t.getAmount();
+                                    if (t.getIncomeExpense() == 2)
+                                        savedTotal = savedTotal + t.getAmount();
+                                }
+                            }
+                        }
+                    }
+                    c.setSavedTotal(savedTotal);
+                }
             }
         }
     }

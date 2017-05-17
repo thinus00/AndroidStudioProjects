@@ -185,7 +185,6 @@ public class doUploadAsync extends AsyncTask {
             StackTraceElement[] ste = e.getStackTrace();
             publishProgress("Exception: " + e.toString() + "\n\n" + ste[0].toString(), "scroll");
             e.printStackTrace();
-
         }
         stop = 2;
         publishProgress("*doInBackground done");

@@ -31,7 +31,11 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/show_unlinked" android:title="@string/show_unlinked"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_deleted" android:title="@string/show_deleted"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/show_duplicates" android:title="@string/show_duplicates"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/show_possibles" android:title="@string/show_possibles"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/show_all" android:title="@string/show_all"
         android:orderInCategory="100" app:showAsAction="never" />
@@ -49,6 +53,8 @@
     <item android:id="@+id/show_remaining" android:title="@string/show_remaining"
         android:orderInCategory="100" app:showAsAction="never" />
 
+    <item android:id="@+id/download_csv" android:title="@string/download_csv"
+        android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/scan_csv" android:title="@string/scan_csv"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/scan_sms" android:title="@string/scan_sms"

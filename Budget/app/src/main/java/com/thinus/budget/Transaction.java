@@ -25,6 +25,17 @@ public class Transaction {
     private Date _date;
     private String _reference;
     private int _income_expense; //unknown = 0 income = 1 expense = 2
+    private int _deleted; //no = 0 yes = 1
+    private String _sms;
+    private String _csv_prov;
+    private String _csv_hist;
+    private Date _date_created;
+    private int _split; //no = 0 yes = 1
+    private int _split_trans_id1;
+    private int _split_trans_id2;
+    private int _type; //0=normal,1=possible,2=linkto
+    private int _linktoid;
+    private double _possibleLinkToSimilarity;
 
     public int getId()
     {
@@ -68,6 +79,50 @@ public class Transaction {
             return "Unknown";
         }
     }
+    public int getDeleted()
+    {
+        return _deleted;
+    }
+    public String getSms()
+    {
+        return _sms;
+    }
+    public String getCSV_prov()
+    {
+        return _csv_prov;
+    }
+    public String getCSV_hist()
+    {
+        return _csv_hist;
+    }
+    public Date getDateCreated()
+    {
+        return _date_created;
+    }
+    public int getSplit()
+    {
+        return _split;
+    }
+    public int getSplitTransID1()
+    {
+        return _split_trans_id1;
+    }
+    public int getSplitTransID2()
+    {
+        return _split_trans_id2;
+    }
+    public int getType()
+    {
+        return _type;
+    }
+    public int getLinkToId()
+    {
+        return _linktoid;
+    }
+    public double getPossibleLinktoSim()
+    {
+        return _possibleLinkToSimilarity;
+    }
 
     public void setAmount(double tmpAmount)
     {
@@ -97,6 +152,53 @@ public class Transaction {
     {
         _income_expense = tmpIncomeExpense;
     }
+    public void setDeleted(int tmpDeleted)
+    {
+        _deleted = tmpDeleted;
+    }
+    public void setSMS(String tmpSMS)
+    {
+        _sms = tmpSMS;
+        updateRef();
+    }
+    public void setCSVProv(String tmpCSVProv)
+    {
+        _csv_prov = tmpCSVProv;
+        updateRef();
+    }
+    public void setCSVHist(String tmpCSVHist)
+    {
+        _csv_hist = tmpCSVHist;
+        updateRef();
+    }
+    public void setDateCreated(Date tmpDateCreated)
+    {
+        _date_created = tmpDateCreated;
+    }
+    public void setSplit(int tmpSplit)
+    {
+        _split = tmpSplit;
+    }
+    public void setSplitTransID1(int tmpSplitTransID1)
+    {
+        _split_trans_id1 = tmpSplitTransID1;
+    }
+    public void setSplitTransID2(int tmpSplitTransID2)
+    {
+        _split_trans_id2 = tmpSplitTransID2;
+    }
+    public void setType(int tmpType)
+    {
+        _type = tmpType;
+    }
+    public void setLinkToId(int tmpLinkToId)
+    {
+        _linktoid = tmpLinkToId;
+    }
+    public void setPossibleLinktoSim(double tmpPossibleLinkToSim)
+    {
+        _possibleLinkToSimilarity = tmpPossibleLinkToSim;
+    }
 
     public String getCategoryName()
     {
@@ -108,7 +210,7 @@ public class Transaction {
         return MainActivity.getCategoryNameType(_categoryId);
     }
 
-    Transaction(int Id, double amount, int categoryId, String account, String description, Date date, String reference, int income_expense)
+    Transaction(int Id, double amount, int categoryId, String account, String description, Date date, String reference, int income_expense, int deleted, String sms, String csv_prov, String csv_hist, Date dateCreated, int split, int split_transid1, int split_transid2)
     {
         _error = "";
 
@@ -125,10 +227,35 @@ public class Transaction {
         _account = account;
         _description = description;
         _date = date;
-        _reference = reference;
+        //_reference = reference;
         _income_expense = income_expense;
+        _deleted = deleted;
+        _sms = sms;
+        _csv_prov = csv_prov;
+        _csv_hist = csv_hist;
+        _date_created = dateCreated;
+        _split = split;
+        _split_trans_id1 = split_transid1;
+        _split_trans_id2 = split_transid2;
+        _type = 0;
+        updateRef();
     }
 
+    private void updateRef() {
+        if (!_csv_hist.isEmpty()) {
+            _reference = _csv_hist;
+        } else {
+            if (!_csv_prov.isEmpty()) {
+                _reference = _csv_prov;
+            } else {
+                if (!_sms.isEmpty()) {
+                    _reference = _sms;
+                } else {
+                    _reference = "";
+                }
+            }
+        }
+    }
     private int getNextID(){
         //look for max categoryId and add 1
         return transId++;
@@ -159,8 +286,17 @@ public class Transaction {
             if (_description.contains("'")) {
                 _description = _description.replace("'","//");
             }
-            if (_reference.contains("'")) {
-                _reference = _reference.replace("'","//");
+            //if (_reference.contains("'")) {
+            //    _reference = _reference.replace("'","//");
+            //}
+            if (_sms.contains("'")) {
+                _sms = _sms.replace("'","//");
+            }
+            if (_csv_prov.contains("'")) {
+                _csv_prov = _csv_prov.replace("'","//");
+            }
+            if (_csv_hist.contains("'")) {
+                _csv_hist = _csv_hist.replace("'","//");
             }
 
             Database.SaveTransaction(this);
@@ -173,6 +309,7 @@ public class Transaction {
     public void Update()
     {
         try {
+            updateRef();
             if (_description.contains("'")) {
                 _description = _description.replace("'","//");
             }

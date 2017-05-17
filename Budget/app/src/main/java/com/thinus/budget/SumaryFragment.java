@@ -48,6 +48,9 @@ public class SumaryFragment extends Fragment {
     double incomeOverBudget = 0;
     double transferOverBudget = 0;
     double totalOverBudget = 0;
+    double savingsMisc = 0;
+    double savingsTyres = 0;
+    double savingsTotal = 0;
 
     View rootView;
 
@@ -101,10 +104,15 @@ public class SumaryFragment extends Fragment {
         transferOverBudget = 0;
         totalOverBudget = 0;
 
+        savingsMisc = 0;
+        savingsTyres = 0;
+        savingsTotal = 0;
+
         if (rootView == null)
             return;
 
         CategoryFragment.calcBugetTotals();
+        //CategoryFragment.calcSavedTotals();
 
         for (Category c : MainActivity.categoryItems) {
             if (c.getCatType() == Category.CategoryType.Recurring) {
@@ -176,6 +184,15 @@ public class SumaryFragment extends Fragment {
                 } else {
                     transferNotBudget = transferNotBudget + c.getBudgetTotal();
                 }
+            }
+
+            if (c.getName().startsWith("Save-")) {
+                if (c.getName().equals("Save-Tyres")) {
+                    savingsTyres += c.getSavedTotal();
+                } else {
+                    savingsMisc += c.getSavedTotal();
+                }
+                savingsTotal += c.getSavedTotal();
             }
 
         }
@@ -304,6 +321,12 @@ public class SumaryFragment extends Fragment {
             }
         });
 
+        TextView misclabel = (TextView) rootView.findViewById(R.id.textView_savings_misc_value);
+        misclabel.setText(String.format("%.2f", savingsMisc));
+        TextView tyrelabel = (TextView) rootView.findViewById(R.id.textView_savings_tyres_value);
+        tyrelabel.setText(String.format("%.2f", savingsTyres));
+        TextView totalSavelabel = (TextView) rootView.findViewById(R.id.textView_savings_total_value);
+        totalSavelabel.setText(String.format("%.2f", savingsTotal));
         //return rootView;
     }
 

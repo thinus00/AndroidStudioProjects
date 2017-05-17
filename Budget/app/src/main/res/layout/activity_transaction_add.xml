@@ -175,6 +175,16 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Link"
+        android:id="@+id/button_link"
+        android:visibility="invisible"
+        android:layout_below="@+id/editText_reference"
+        android:layout_toRightOf="@+id/button_delete"
+        android:layout_toEndOf="@+id/button_delete" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="..."
         android:id="@+id/button_date"
         android:onClick="selectDate"

@@ -56,6 +56,10 @@ public class CustomBaseAdapterCategoryList extends BaseAdapter implements Filter
         }
         Category c = searchArrayList.get(position);
         holder.txtName.setText(c.getName());
+        if (c.getName().startsWith("Save-"))
+        {
+            holder.txtName.setText(c.getName() + " - R" + c.getSavedTotal());
+        }
         holder.pBar.setMax(100);
         double budgetTotal = c.getBudgetTotal();
 

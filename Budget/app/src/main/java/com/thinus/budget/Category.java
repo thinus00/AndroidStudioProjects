@@ -119,6 +119,7 @@ public class Category {
     private CategoryType _catType;
     private double _budget;
     private double _budgetTotal;
+    private double _savedTotal;
     private ArrayList<String> _smsDescriptions;
 
     public int getId()
@@ -140,6 +141,10 @@ public class Category {
     public double getBudgetTotal()
     {
         return _budgetTotal;
+    }
+    public double getSavedTotal()
+    {
+        return _savedTotal;
     }
     public ArrayList<String> getSMSDescription()
     {
@@ -170,6 +175,10 @@ public class Category {
     public void setBudgetTotal(double tmpBudget)
     {
         _budgetTotal = tmpBudget;
+    }
+    public void setSavedTotal(double tmpSaved)
+    {
+        _savedTotal = tmpSaved;
     }
     public void addSmsDescription(String SmsDescription)
     {
